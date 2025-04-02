@@ -18,7 +18,7 @@ class Purchase
     private ?string $type = null;
 
     #[ORM\ManyToOne(inversedBy: 'purchases')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?ProductInfos $product = null;
 
     #[ORM\ManyToOne(inversedBy: 'purchases')]
@@ -30,6 +30,15 @@ class Purchase
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    private ?int $cooldown = null;
+
+    #[ORM\Column]
+    private ?int $price = null;
+
+    #[ORM\Column]
+    private ?int $gain = null;
 
     public function getId(): ?int
     {
@@ -92,6 +101,42 @@ class Purchase
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getCooldown(): ?int
+    {
+        return $this->cooldown;
+    }
+
+    public function setCooldown(int $cooldown): static
+    {
+        $this->cooldown = $cooldown;
+
+        return $this;
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price): static
+    {
+        $this->price = $price;
+
+        return $this;
+    }
+
+    public function getGain(): ?int
+    {
+        return $this->gain;
+    }
+
+    public function setGain(int $gain): static
+    {
+        $this->gain = $gain;
 
         return $this;
     }

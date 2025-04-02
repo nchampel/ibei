@@ -11,3 +11,7 @@ https://fakerphp.org/
 puis les créer en bdd
 
 symfony console doctrine:fixtures:load
+
+make:registration-form
+
+make:security:form-login

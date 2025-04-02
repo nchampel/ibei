@@ -25,20 +25,47 @@ class PurchaseRepository extends ServiceEntityRepository
    /**
     * @return Purchase[] Returns an array of Purchase objects
     */
-   public function findByType($value): array
-   {
-       return $this->createQueryBuilder('p')
-    //    ->select('p', 'i')
-    //    ->leftJoin('App\Entity\ProductInfos', 'i')
-       ->leftJoin('p.product', 'i')
-           ->andWhere('p.product = i.id')
-           ->andWhere('p.type = :value')
-           ->setParameter('value', $value)
-           ->orderBy('i.cooldown', 'ASC')
-           ->getQuery()
-           ->getResult()
-       ;
-   }
+//    public function findByType($value): array
+//    {
+//        return $this->createQueryBuilder('p')
+//     //    ->select('p', 'i')
+//     //    ->leftJoin('App\Entity\ProductInfos', 'i')
+//        ->leftJoin('p.product', 'i')
+//            ->andWhere('p.product = i.id')
+//            ->andWhere('p.type = :value')
+//            ->setParameter('value', $value)
+//            ->orderBy('i.cooldown', 'ASC')
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
+
+   /**
+    * @return Purchase[] Returns an array of Purchase objects
+    */
+    public function findByUserNull($product, $user = null): array
+    {
+        if($product){
+
+            return $this->createQueryBuilder('p')
+            ->leftJoin('p.user', 'u') // LEFT JOIN pour inclure les NULL
+            ->where('p.user IS NULL') // Filtrer uniquement ceux sans produit
+            // ->addSelect('prod')
+            ->orderBy('p.cooldown', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+        } else {
+            return $this->createQueryBuilder('p')
+                ->innerJoin('p.user', 'u')
+                ->where('p.user = :value')
+                ->setParameter('value', $user)
+                ->orderBy('p.cooldown', 'ASC')
+                ->getQuery()
+                ->getResult()
+            ;
+        }
+    }
 
 //    public function findOneBySomeField($value): ?Purchase
 //    {

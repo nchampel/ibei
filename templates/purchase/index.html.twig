@@ -1,102 +1,124 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Purchase index{% endblock %}
+{% block title %}Purchase index
+{% endblock %}
 
 {% block body %}
-    <h1>Purchase index</h1>
-
-    {# <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Type</th>
-                <th>ClaimedAt</th>
-                <th>CreatedAt</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody> #}
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">En vente</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="possessed-tab" data-bs-toggle="tab" href="#possessed" role="tab">Possédés</a>
-            </li>
-        </ul>
-        <div class="tab-content mt-3" id="myTabContent">
-            <div class="tab-pane fade show active" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
-                {% for purchase in purchasesBuyable %}
-                <div class="card" style="width: 18rem;">
-                    {# <img class="card-img-top" src="..." alt="Card image cap"> #}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ purchase.product.name }}</h5>
-                        <p class="card-text">{{ purchase.product.description }}</p>
-                        <p class="card-text">Gain : {{ purchase.product.gain }} €</p>
-                        <p class="card-text">Cooldown : {{ purchase.product.cooldown | duration_format }}</p>
-                        <p class="card-text">Prix : {{ purchase.product.price }} €</p>
-                        <a href={{ path('app_purchase_buy', {'id': purchase.id})}} class="btn btn-primary">Acheter</a>
-                    </div>
-                    </div>
-                    {# <tr>
-                        <td>{{ purchase.id }}</td>
-                        <td>{{ purchase.type }}</td>
-                        <td>{{ purchase.claimedAt ? purchase.claimedAt|date('Y-m-d H:i:s') : '' }}</td>
-                        <td>{{ purchase.createdAt ? purchase.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                        <td>
-                            <a href="{{ path('app_purchase_show', {'id': purchase.id}) }}">show</a>
-                            <a href="{{ path('app_purchase_edit', {'id': purchase.id}) }}">edit</a>
-                        </td>
-                    </tr> #}
-                {% else %}
-                    <tr>
-                        <td colspan="5">Pas de produits achetables</td>
-                    </tr>
+	<h1>Purchase index</h1>
+	{% if app.user %}
+    	<p>{{ app.user.pseudo }}</p>
+		<a href={{ path('app_logout') }}>Se déconnecter</a>
+	{% else %}
+		<a href={{ path('app_login') }}>Se connecter</a>
+	{% endif %}
+	{# <table class="table">
+	        <thead>
+	            <tr>
+	                <th>Id</th>
+	                <th>Type</th>
+	                <th>ClaimedAt</th>
+	                <th>CreatedAt</th>
+	                <th>actions</th>
+	            </tr>
+	        </thead>
+	        <tbody> #}
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item">
+			<a class="nav-link active" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">En vente</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" id="possessed-tab" data-bs-toggle="tab" href="#possessed" role="tab">Possédés</a>
+		</li>
+	</ul>
+	<div class="tab-content mt-3" id="myTabContent">
+		<div class="tab-pane fade show active" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
+			<div class="d-flex flow-row">
+				{% for purchase in purchasesBuyable %}
+					<div class="card m-3 box-shadow-custom" style="width: 18rem;">
+						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
+						<div class="card-body m-2">
+							<h5 class="card-title">{{ purchase.product.name }}</h5>
+							<p class="card-text">{{ purchase.product.description }}</p>
+							<p class="card-text">Gain :
+								{{ purchase.gain }}
+								€</p>
+							<p class="card-text">Cooldown :
+								{{ purchase.cooldown | duration_format }}</p>
+							<p class="card-text">Prix :
+								{{ purchase.price }}
+								€</p>
+							<a href={{ path('app_purchase_buy', {'id': purchase.id} )}} class="btn btn-primary">Acheter</a>
+						</div>
+					</div>
+            {% endfor %}
+			</div>
+				{# <tr>
+				                        <td>{{ purchase.id }}</td>
+				                        <td>{{ purchase.type }}</td>
+				                        <td>{{ purchase.claimedAt ? purchase.claimedAt|date('Y-m-d H:i:s') : '' }}</td>
+				                        <td>{{ purchase.createdAt ? purchase.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+				                        <td>
+				                            <a href="{{ path('app_purchase_show', {'id': purchase.id}) }}">show</a>
+				                            <a href="{{ path('app_purchase_edit', {'id': purchase.id}) }}">edit</a>
+				                        </td>
+				                    </tr> #}
+			{% if purchasesBuyable | length == 0 %}
+				<p>Pas de produits achetables</p>
+			{% endif %}
+		</div>
+		<div class="tab-pane fade" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
+			<div class="d-flex flow-row">
+				{% for purchase in purchasesPossessed %}
+					<div
+						class="card m-3 box-shadow-custom" style="width: 18rem;">
+						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
+						<div class="card-body">
+							<h5 class="card-title">{{ purchase.product.name }}</h5>
+							<p class="card-text">{{ purchase.product.description }}</p>
+							<p class="card-text">Gain :
+								{{ purchase.gain }}
+								€</p>
+							<p class="card-text">Cooldown :
+								{{ purchase.cooldown | duration_format }}</p>
+							<a href="#" class="btn btn-primary">Récolter</a>
+						</div>
+					</div>
                 {% endfor %}
-            </div>
-            <div class="tab-pane fade" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
-                {% for purchase in purchasesPossessed %}
-                <div class="card" style="width: 18rem;">
-                    {# <img class="card-img-top" src="..." alt="Card image cap"> #}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ purchase.product.name }}</h5>
-                        <p class="card-text">{{ purchase.product.description }}</p>
-                        <p class="card-text">Gain : {{ purchase.product.gain }} €</p>
-                        <p class="card-text">Cooldown : {{ purchase.product.cooldown | duration_format }}</p>
-                        <a href="#" class="btn btn-primary">Récolter</a>
-                    </div>
-                    </div>
-                {% else %}
-                    <tr>
-                        <td colspan="5">Pas de produits possédés</td>
-                    </tr>
-                {% endfor %}
-            </div>
-        </div>
-        
-        {# </tbody>
-    </table> #}
+			</div>
+            {% if purchasesPossessed | length == 0 %}
+			
+				<p>Pas de produits possédés</p>
+            {% endif %}
+			
+		</div>
+	</div>
 
-    <a href="{{ path('app_purchase_new') }}">Create new</a>
+	{# </tbody>
+	    </table> #}
+
+	<a href="{{ path('app_purchase_new') }}">Create new</a>
 {% endblock %}
 {% block script %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    let tabLinks = document.querySelectorAll(".nav-link");
-    tabLinks.forEach(link => {
-        link.addEventListener("click", function (event) {
-            event.preventDefault();
-            let activeTab = document.querySelector(".tab-pane.active");
-            let newTab = document.querySelector(this.getAttribute("href"));
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+let tabLinks = document.querySelectorAll(".nav-link");
+tabLinks.forEach(link => {
+link.addEventListener("click", function (event) {
+event.preventDefault();
+let activeTab = document.querySelector(".tab-pane.active");
+let newTab = document.querySelector(this.getAttribute("href"));
 
-            if (activeTab) activeTab.classList.remove("show", "active");
-            if (newTab) newTab.classList.add("show", "active");
+if (activeTab) 
+activeTab.classList.remove("show", "active");
 
-            tabLinks.forEach(tab => tab.classList.remove("active"));
-            this.classList.add("active");
-        });
-    });
+if (newTab) 
+newTab.classList.add("show", "active");
+
+
+tabLinks.forEach(tab => tab.classList.remove("active"));
+this.classList.add("active");
 });
-
-    </script>
+});
+});
+	</script>
 {% endblock %}

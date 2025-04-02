@@ -17,7 +17,7 @@ class Pot
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?bool $isClaimed = null;
 
     #[ORM\Column]
