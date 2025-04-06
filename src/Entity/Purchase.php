@@ -40,6 +40,77 @@ class Purchase
     #[ORM\Column]
     private ?int $gain = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $boughtAt = null;
+
+    private bool $isClaimable = true;
+    private int $remainedSeconds;
+
+    public function updateRemainedSeconds(){
+        $claimedAtBDD = $this->getClaimedAt();
+
+    if ($claimedAtBDD) {
+        // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
+        $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
+        $claimedAt = $claimedAtBDD->getTimestamp();
+
+        // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $nowSecondes = $now->getTimestamp();
+
+        $this->setRemainedSeconds($this->getCooldown() - ($nowSecondes - $claimedAt));
+    } else {
+        $this->setRemainedSeconds(0);
+    }
+    }
+
+    public function updateIsClaimable(): void
+{
+    // Récupérer la date 'claimedAt' en UTC depuis la base de données
+    $claimedAtBDD = $this->getClaimedAt();
+
+    if ($claimedAtBDD) {
+        // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
+        $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
+        $claimedAt = $claimedAtBDD->getTimestamp();
+
+        // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $nowSecondes = $now->getTimestamp();
+
+        // Comparer la différence entre les timestamps (en secondes)
+        $this->setIsClaimable($nowSecondes - $claimedAt >= $this->getCooldown());
+    } else {
+        // Si pas de 'claimedAt', c'est claimable
+        $this->setIsClaimable(true);
+    }
+}
+
+//     public function getIsClaimable(): bool
+// {
+//     $claimedAtBDD = $this->getClaimedAt();
+//     if ($claimedAtBDD) {
+//         $claimedAt = $claimedAtBDD->getTimestamp();
+
+//         $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+//         $nowSecondes = $now->getTimestamp();
+        
+//         // Comparaison de la différence entre le timestamp actuel et celui de 'claimedAt'
+//         return ($nowSecondes - $claimedAt >= $this->getCooldown());
+//     }
+    
+//     return true; // Si pas de claimedAt, c'est claimable
+// }
+/**
+ * Get the value of isClaimable
+ *
+ * @return bool
+ */
+public function getIsClaimable(): bool
+{
+    return $this->isClaimable;
+}
+
     public function getId(): ?int
     {
         return $this->id;
@@ -81,12 +152,12 @@ class Purchase
         return $this;
     }
 
-    public function getclaimedAt(): ?\DateTimeInterface
+    public function getClaimedAt(): ?\DateTimeInterface
     {
         return $this->claimedAt;
     }
 
-    public function setclaimedAt(?\DateTimeInterface $claimedAt): static
+    public function setClaimedAt(?\DateTimeInterface $claimedAt): static
     {
         $this->claimedAt = $claimedAt;
 
@@ -137,6 +208,53 @@ class Purchase
     public function setGain(int $gain): static
     {
         $this->gain = $gain;
+
+        return $this;
+    }
+
+    public function getBoughtAt(): ?\DateTimeImmutable
+    {
+        return $this->boughtAt;
+    }
+
+    public function setBoughtAt(\DateTimeImmutable $boughtAt): static
+    {
+        $this->boughtAt = $boughtAt;
+
+        return $this;
+    }
+
+    
+
+    /**
+     * Set the value of isClaimable
+     *
+     * @param bool $isClaimable
+     * @return self
+     */
+    public function setIsClaimable(bool $isClaimable): self
+    {
+        $this->isClaimable = $isClaimable;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of remainedSeconds
+     */ 
+    public function getRemainedSeconds()
+    {
+        return $this->remainedSeconds;
+    }
+
+    /**
+     * Set the value of remainedSeconds
+     *
+     * @return  self
+     */ 
+    public function setRemainedSeconds($remainedSeconds)
+    {
+        $this->remainedSeconds = $remainedSeconds;
 
         return $this;
     }

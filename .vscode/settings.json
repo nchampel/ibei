@@ -1,0 +1,43 @@
+{
+  // ✅ Chemin vers PHP (à adapter selon ta machine)
+  // "php.validate.executablePath": "/usr/bin/php",
+
+  // ✅ Intelephense : active l'indexation du dossier vendor
+  "intelephense.environment.includePaths": [
+    "vendor",
+    "templates"
+  ],
+  "files.associations": {
+    "*.twig": "twig"
+},
+  "intelephense.diagnostics.enable": true,
+  "intelephense.files.exclude": [
+    "**/*.twig",
+    "**/vendor/**/Tests/**",
+    "**/node_modules/**",
+    "**/var/**"
+  ],
+  // "intelephense.stubs": [
+  //   "Core", "date", "json", "pcre", "PDO", "Reflection", "SPL", "standard",
+  //    "mbstring", "ctype", "dom", "fileinfo", "filter", "hash",
+  //   "libxml", "openssl", "session", "SimpleXML", "xml", "zlib"
+  // ],
+
+  // ✅ Rendre le dossier vendor visible pour Intelephense
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/var": true
+  },
+
+  // ✅ Formatage automatique au save
+  "editor.formatOnSave": true,
+  
+  // ✅ Améliore les snippets Twig
+  "[twig]": {
+    "editor.autoClosingBrackets": "always",
+    "editor.formatOnType": true
+  },
+  // "twig.languageServer.enable": true
+}

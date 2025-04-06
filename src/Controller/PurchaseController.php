@@ -6,40 +6,98 @@ use App\Entity\Purchase;
 use App\Form\PurchaseType;
 use App\Repository\ProductInfosRepository;
 use App\Repository\PurchaseRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/purchase')]
 class PurchaseController extends AbstractController
+
 {
-    #[Route('/', name: 'app_purchase_index', methods: ['GET'])]
-    public function index(PurchaseRepository $purchaseRepository, UserRepository $userRepository): Response
+    private EntityManagerInterface $manager;
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $user = $userRepository->find(9);
+        $this->manager = $entityManager;
+    }
+    /**
+     * @param \App\Entity\Purchase[] $purchasesBuyable
+     */
+    #[Route('/', name: 'app_purchase_index', methods: ['GET'])]
+    public function index(PurchaseRepository $purchaseRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $userConnected = ["tab" => "", "nav" => ""];
+        $userNotConnected = ["tab" => "show active", "nav" => "active"];
+        $purchasesPossessed = [];
+        if ($user) {
+            $purchasesPossessed = $purchaseRepository->findByUserNull(false, $user->getId());
+            // on rajoute l'aspect claimable ou pas
+            foreach($purchasesPossessed as $purchaseP){
+                $purchaseP->updateIsClaimable();
+                $purchaseP->updateRemainedSeconds();
+            }
+            $userConnected = ["tab" => "show active", "nav" => "active"];
+            $userNotConnected = ["tab" => "", "nav" => ""];
+        }
+        // $user = $userRepository->find($this->getUser());
         $purchasesBuyable = $purchaseRepository->findByUserNull(true);
-        $purchasesPossessed = $purchaseRepository->findByUserNull(false, $user);
+        dump($purchasesPossessed);
         return $this->render('purchase/index.html.twig', [
             // 'purchases' => $purchaseRepository->findAll(),
             'purchasesBuyable' => $purchasesBuyable,
             'purchasesPossessed' => $purchasesPossessed,
+            'userNotconnected' => $userNotConnected,
+            'userConnected' => $userConnected,
         ]);
     }
 
-    #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
-    public function buy(Purchase $purchase, EntityManagerInterface $entityManager, UserRepository $userRepository): Response
+    #[Route('/harvest/{id}', name: 'harvest')]
+    public function harvest(Purchase $purchase)
     {
+        $gain = $purchase->getGain();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $money = $user->getMoney();
+
+        $isClaimable = $purchase->getIsClaimable();
+        if(!$isClaimable){
+                return new JsonResponse(['isClaimable' => false, 'money' => $money, 'cooldown' => $purchase->getCooldown()]);
+            
+        } else {
+            $user->setMoney($money + $gain);
+            $purchase->setClaimedAt(new \DateTimeImmutable());
+            $this->manager->persist($user);
+            $this->manager->persist($purchase);
+            $this->manager->flush();
+            return new JsonResponse(['isClaimable' => true, 'money' => $money + $gain, 'cooldown' => $purchase->getCooldown()]);
+        }
+       
+        
+        // return $this->redirectToRoute('app_purchase_index');
+    }
+
+    /**
+     * @param \App\Entity\Purchase $purchase
+     * @param \App\Entity\User $user
+     */
+    #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
+    public function buy(Purchase $purchase, EntityManagerInterface $entityManager): Response
+    {
+        /** @var \App\Entity\User $user */
         // il faudra changer l'user
         // mettre logique d'achat avec vérification de la somme, et afficher le bouton acheter en twig que si on a la somme
-        $user = $userRepository->find(9);
+        $user = $this->getUser();
+        // $user = $userRepository->find($security->getUser());
         $money = $user->getMoney();
         $price = $purchase->getPrice();
-        if($money >= $price){
+        if ($money >= $price) {
             $user->setMoney($money - $price);
             $purchase->setUser($user);
+            $purchase->setBoughtAt(new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris')));
             $entityManager->persist($user);
             $entityManager->persist($purchase);
             $entityManager->flush();
@@ -48,7 +106,6 @@ class PurchaseController extends AbstractController
             $this->addFlash('error', "Vous n'avez pas assez d'argent");
         }
         return $this->redirectToRoute('app_purchase_index');
-        
     }
 
     #[Route('/new', name: 'app_purchase_new', methods: ['GET', 'POST'])]
@@ -100,7 +157,7 @@ class PurchaseController extends AbstractController
     #[Route('/{id}', name: 'app_purchase_delete', methods: ['POST'])]
     public function delete(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$purchase->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $purchase->getId(), $request->request->get('_token'))) {
             $entityManager->remove($purchase);
             $entityManager->flush();
         }
@@ -109,19 +166,23 @@ class PurchaseController extends AbstractController
     }
 
     #[Route('/generate/{token}', name: 'app_purchases_generate', methods: ['GET'])]
-    public function generate(Request $request, string $token, EntityManagerInterface $entityManager, PurchaseRepository $purchaseRepository,
-    ProductInfosRepository $productInfosRepository): Response
-    {
+    public function generate(
+        Request $request,
+        string $token,
+        EntityManagerInterface $entityManager,
+        PurchaseRepository $purchaseRepository,
+        ProductInfosRepository $productInfosRepository
+    ): Response {
         // tester http://localhost:8000/purchase/generate/abcde
         if ($token == "abcde") {
             $productsBuyable = $purchaseRepository->findByUserNull(true);
-            foreach($productsBuyable as $product){
-                
+            foreach ($productsBuyable as $product) {
+
                 $entityManager->remove($product);
                 $entityManager->flush();
             }
             $productsModel = $productInfosRepository->findAll();
-            foreach($productsModel as $model){
+            foreach ($productsModel as $model) {
                 $productGenerated = new Purchase();
                 $gainModel = $model->getGain();
                 $priceModel = $model->getPrice();

@@ -3,38 +3,46 @@
 {% block title %}Purchase index
 {% endblock %}
 
+{# @var purchasesBuyable \App\Entity\Purchase[] #}
+
 {% block body %}
 	<h1>Purchase index</h1>
 	{% if app.user %}
-    	<p>{{ app.user.pseudo }}</p>
+		<p>{{ app.user.pseudo }}</p>
 		<a href={{ path('app_logout') }}>Se déconnecter</a>
 	{% else %}
 		<a href={{ path('app_login') }}>Se connecter</a>
 	{% endif %}
+	{% if app.user %}
+		<p id="money">Argent :
+			{{ app.user.money }}
+			€</p>
+	{% endif %}
 	{# <table class="table">
-	        <thead>
-	            <tr>
-	                <th>Id</th>
-	                <th>Type</th>
-	                <th>ClaimedAt</th>
-	                <th>CreatedAt</th>
-	                <th>actions</th>
-	            </tr>
-	        </thead>
-	        <tbody> #}
+					        <thead>
+					            <tr>
+					                <th>Id</th>
+					                <th>Type</th>
+					                <th>ClaimedAt</th>
+					                <th>CreatedAt</th>
+					                <th>actions</th>
+					            </tr>
+					        </thead>
+					        <tbody> #}
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item">
-			<a class="nav-link active" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">En vente</a>
+			<a class="nav-link {{ userNotconnected.nav }}" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">En vente</a>
 		</li>
 		<li class="nav-item">
-			<a class="nav-link" id="possessed-tab" data-bs-toggle="tab" href="#possessed" role="tab">Possédés</a>
+			<a class="nav-link {{ userConnected.nav }}" id="possessed-tab" data-bs-toggle="tab" href="#possessed" role="tab">Possédés</a>
 		</li>
 	</ul>
 	<div class="tab-content mt-3" id="myTabContent">
-		<div class="tab-pane fade show active" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
+		<div class="tab-pane fade {{ userNotconnected.tab }}" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
 			<div class="d-flex flow-row">
 				{% for purchase in purchasesBuyable %}
-					<div class="card m-3 box-shadow-custom" style="width: 18rem;">
+					<div
+						class="card m-3 box-shadow-custom" style="width: 18rem;">
 						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
 						<div class="card-body m-2">
 							<h5 class="card-title">{{ purchase.product.name }}</h5>
@@ -47,26 +55,27 @@
 							<p class="card-text">Prix :
 								{{ purchase.price }}
 								€</p>
+
 							<a href={{ path('app_purchase_buy', {'id': purchase.id} )}} class="btn btn-primary">Acheter</a>
 						</div>
 					</div>
-            {% endfor %}
+				{% endfor %}
 			</div>
-				{# <tr>
-				                        <td>{{ purchase.id }}</td>
-				                        <td>{{ purchase.type }}</td>
-				                        <td>{{ purchase.claimedAt ? purchase.claimedAt|date('Y-m-d H:i:s') : '' }}</td>
-				                        <td>{{ purchase.createdAt ? purchase.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-				                        <td>
-				                            <a href="{{ path('app_purchase_show', {'id': purchase.id}) }}">show</a>
-				                            <a href="{{ path('app_purchase_edit', {'id': purchase.id}) }}">edit</a>
-				                        </td>
-				                    </tr> #}
+			{# <tr>
+																                        <td>{{ purchase.id }}</td>
+																                        <td>{{ purchase.type }}</td>
+																                        <td>{{ purchase.claimedAt ? purchase.claimedAt|date('Y-m-d H:i:s') : '' }}</td>
+																                        <td>{{ purchase.createdAt ? purchase.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+																                        <td>
+																                            <a href="{{ path('app_purchase_show', {'id': purchase.id}) }}">show</a>
+																                            <a href="{{ path('app_purchase_edit', {'id': purchase.id}) }}">edit</a>
+																                        </td>
+																                    </tr> #}
 			{% if purchasesBuyable | length == 0 %}
 				<p>Pas de produits achetables</p>
 			{% endif %}
 		</div>
-		<div class="tab-pane fade" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
+		<div class="tab-pane fade {{ userConnected.tab }}" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
 			<div class="d-flex flow-row">
 				{% for purchase in purchasesPossessed %}
 					<div
@@ -80,45 +89,135 @@
 								€</p>
 							<p class="card-text">Cooldown :
 								{{ purchase.cooldown | duration_format }}</p>
-							<a href="#" class="btn btn-primary">Récolter</a>
+							<span id="compteur-{{ purchase.id }}" style="margin-left: 10px;"></span>
+							{# <a id="harvest-{{ purchase.id }}" href={{ path('harvest', {id: purchase.id } ) }} class="btn btn-primary">Récolter</a> #}
+							{% if purchase.isClaimable %}
+								<button data-id={{ purchase.id }} data-url="{{ path('harvest', {id: purchase.id }) }}" 
+								class="btn btn-primary harvest-btn">Récolter</button>
+							{% else %}
+								<p id="remainedSeconds">{{ purchase.remainedSeconds }}</p>
+							{% endif %}
 						</div>
 					</div>
-                {% endfor %}
+				{% endfor %}
 			</div>
-            {% if purchasesPossessed | length == 0 %}
-			
+			{% if purchasesPossessed | length == 0 %}
+
 				<p>Pas de produits possédés</p>
-            {% endif %}
-			
+			{% endif %}
+
 		</div>
 	</div>
 
 	{# </tbody>
-	    </table> #}
+					    </table> #}
 
-	<a href="{{ path('app_purchase_new') }}">Create new</a>
+	{# <a href="{{ path('app_purchase_new') }}">Create new</a> #}
 {% endblock %}
 {% block script %}
 	<script>
-		document.addEventListener("DOMContentLoaded", function () {
-let tabLinks = document.querySelectorAll(".nav-link");
-tabLinks.forEach(link => {
-link.addEventListener("click", function (event) {
+		document.addEventListener( "DOMContentLoaded", function () {
+let tabLinks = document.querySelectorAll( ".nav-link" );
+tabLinks.forEach( link => {
+link.addEventListener( "click", function ( event ) {
 event.preventDefault();
-let activeTab = document.querySelector(".tab-pane.active");
-let newTab = document.querySelector(this.getAttribute("href"));
+let activeTab = document.querySelector( ".tab-pane.active" );
+let newTab = document.querySelector( this.getAttribute( "href" ) );
 
-if (activeTab) 
-activeTab.classList.remove("show", "active");
+if ( activeTab ) 
+activeTab.classList.remove( "show", "active" );
 
-if (newTab) 
-newTab.classList.add("show", "active");
+if ( newTab ) 
+newTab.classList.add( "show", "active" );
+
+tabLinks.forEach( tab => tab.classList.remove( "active" ) );
+this.classList.add( "active" );
+} );
+} );
+} );
+function startCountdown($button, $counter, duree) {
+    let tempsRestant = duree;
+
+    // $button.prop('disabled', true);
+    $counter.text(formatTime(tempsRestant));
+
+    const intervalle = setInterval(() => {
+        tempsRestant--;
+        $counter.text(formatTime(tempsRestant));
+
+        if (tempsRestant <= 0) {
+            clearInterval(intervalle);
+            $button.prop('disabled', false);
+            $counter.text('');
+			
+			$button.show();
+        }
+    }, 1000);
+	
+}
+function formatTime(seconds) {
+                const hours = Math.floor(seconds / 3600);  // Nombre d'heures
+                const minutes = Math.floor((seconds % 3600) / 60);  // Nombre de minutes
+                const remainingSeconds = seconds % 60;  // Nombre de secondes restantes
+
+                // Ajouter un zéro devant les chiffres inférieurs à 10
+                return (
+                    String(hours).padStart(2, '0') + ":" +
+                    String(minutes).padStart(2, '0') + ":" +
+                    String(remainingSeconds).padStart(2, '0')
+                );
+            }
 
 
-tabLinks.forEach(tab => tab.classList.remove("active"));
-this.classList.add("active");
-});
-});
-});
+    $(document).ready(function () {
+
+		
+
+		let counterValue = $("#remainedSeconds").text();
+		console.log(counterValue);
+            
+            function updateCounter() {
+                if (counterValue >= 0) {
+                    $('#remainedSeconds').text(formatTime(counterValue));
+                    counterValue--;
+                }
+            }
+
+            // Appel de la fonction toutes les secondes (1000ms)
+            let interval = setInterval(updateCounter, 1000);
+
+            // Arrêter le décompte quand il arrive à zéro
+            setTimeout(function() {
+                clearInterval(interval);
+            }, (counterValue + 1) * 1000); // Arrêter après le dernier décompte
+        
+
+        $('.harvest-btn').click(function () {
+            const $button = $(this);
+			$button.hide();
+            const id = $button.data('id');
+            const url = $button.data('url');
+            const $counter = $('#compteur-' + id);
+			$counter.text("Récupération de l'argent");
+			
+
+            // Appel AJAX vers la route Symfony
+            $.ajax({
+				url: url,
+                method: 'GET', // ou POST selon ta route
+                success: function (response) {
+					if(response.isClaimable){
+
+						$("#money").text("Argent : " + response.money + " €")
+						startCountdown($button, $counter, response.cooldown);
+					}
+					
+                },
+                error: function (err) {
+                    console.error('Erreur AJAX :', err);
+                }
+            });
+        });
+    });
 	</script>
 {% endblock %}
