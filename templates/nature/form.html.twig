@@ -1,0 +1,52 @@
+{% extends 'basebootstrap.html.twig' %}
+
+{% block title %}Détermination de l'alignement
+{% endblock %}
+
+{% block body %}
+{{ form_start(form) }}
+
+<div id="questionnaire">
+    {% set total = form|length %}
+    {% for child in form %}
+        <div class="question-step" style="{% if not loop.first %}display: none;{% endif %}">
+            <div class="progress" style="margin-bottom: 10px;">
+                Question {{ loop.index }}/{{ total }}
+            </div>
+            {{ form_row(child) }}
+        </div>
+    {% endfor %}
+</div>
+
+<div style="margin-top: 20px;">
+    <button type="button" id="nextBtn">Suivant</button>
+    <button type="submit" id="submitBtn" style="display: none;" class="btn">Envoyer</button>
+</div>
+
+{{ form_end(form) }}
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const steps = document.querySelectorAll(".question-step");
+        const nextBtn = document.getElementById("nextBtn");
+        const submitBtn = document.getElementById("submitBtn");
+        let currentStep = 0;
+
+        nextBtn.addEventListener("click", function () {
+            if (currentStep < steps.length - 1) {
+                steps[currentStep].style.display = "none";
+                currentStep++;
+                steps[currentStep].style.display = "block";
+
+                if (currentStep === steps.length - 2) {
+                    nextBtn.style.display = "none";
+                    submitBtn.style.display = "inline-block";
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

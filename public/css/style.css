@@ -1,3 +1,108 @@
 .box-shadow-custom {
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
 }
+
+/* .custom-badge-notif {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: rgb(197, 44, 13);
+	color: white;
+	font-weight: bold;
+	border-radius: 50%;
+	padding: 2px 6px;
+	font-size: 12px;
+	line-height: 1;
+} */
+/* @keyframes pulse-scale {
+	0% { transform: scale(1); }
+	50% { transform: scale(1.5); }
+	100% { transform: scale(1); }
+} */
+@keyframes move-up-down {
+	0% {
+		transform: translateY(0); /* Position initiale */
+	}
+	25% {
+		transform: translateY(0); /* Position initiale */
+	}
+	50% {
+		transform: translateY(-4px); /* Monte de 4px */
+	}
+	/* 75% {
+		transform: translateY(-4px); /* S'arrête à 8px pendant 0.5s */
+	/* }  */
+	100% {
+		transform: translateY(0); /* Redescend à la position initiale */
+	}
+}
+
+.custom-badge-notif {
+	position: absolute;
+	top: 5px ;
+	right: 5px;
+	transform: translate(50%, -50%);
+
+	/* Fond rouge avec un léger dégradé */
+	background: linear-gradient(145deg, #ff3d00, #e60707) !important;
+	border: 2px solid yellow !important;
+	color: rgb(225, 255, 0) !important;
+
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	font-size: 14px;
+	font-weight: bold;
+	border-radius: 4px;
+
+	/* overflow: hidden; 👈 empêche le ! de sortir du carré */
+	z-index: 10;
+	box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.8) !important;
+}
+
+.pulse-char {
+	display: inline-block;
+	/* animation: pulse-scale 1s infinite ease-in-out; */
+
+	/* Animation de pulsation + montée/descente */
+	animation: move-up-down 2s infinite ease-in-out;
+	/* Contour textuel avec text-shadow noir */
+	/* text-shadow: 
+		2px 2px 3px rgba(30, 0, 255, 0.5),   
+		-2px -2px 3px rgba(30, 0, 255, 0.5),  
+		2px -2px 3px rgba(30, 0, 255, 0.5),   
+		-2px 2px 3px rgba(30, 0, 255, 0.5);   */
+}
+
+.custom-relative{
+	position: relative;
+}
+
+.custom-bg-sora{
+	background-color: #FFE808;
+}
+.custom-bg-sotoc{
+	background-color: #FF6961;
+}
+.custom-bg-flumia{
+	background-color: #6FD984;
+}
+.custom-bg-nano{
+	background-color: #AA81D5;
+}
+.custom-bg-altheron{
+	background-color: #0CA4FF;
+}
+.custom-bg-app{
+	background-color: #000000;
+}
+.custom-bg-card{
+	background-color: #313742;
+}
+.custom-form-group{
+	display: flex;
+
+}

@@ -17,4 +17,8 @@
 
         <button type="submit" class="btn">Enregistrer</button>
     {{ form_end(registrationForm) }}
+    <p>ou se connecter</p>
+    <a href={{ path('app_login')}}>connexion</a>
+    <p>retour</p>
+    <a href={{ path('app_purchase_index')}}>Retour</a>
 {% endblock %}

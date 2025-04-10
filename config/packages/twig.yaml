@@ -2,6 +2,10 @@ twig:
     default_path: '%kernel.project_dir%/templates'
     form_themes:
         - 'bootstrap_5_layout.html.twig'
+    # Ajout du service à l'environnement Twig
+    globals:
+        alignement: '@App\Services\AlignementService'
+        user: '@App\Services\UserService'
 
 when@test:
     twig:

@@ -47,10 +47,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Pot $pot = null;
 
+    #[ORM\Column(length: 15, nullable: true)]
+    private ?string $nature = null;
+
+    #[ORM\Column(type: Types::BIGINT, options:["default" => 0])]
+    private ?string $exp = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Nature::class, orphanRemoval: true)]
+    private Collection $natureAnswers;
 
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
+        $this->natureAnswers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +216,90 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $this->pot = $pot;
+
+        return $this;
+    }
+
+    public function getNature(): ?string
+    {
+        return $this->nature;
+    }
+
+    public function setNature(?string $nature): static
+    {
+        $this->nature = $nature;
+
+        return $this;
+    }
+
+    public function getExp(): ?string
+    {
+        return $this->exp;
+    }
+
+    public function setExp(string $exp): static
+    {
+        $this->exp = $exp;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Nature>
+     */
+    public function getNatures(): Collection
+    {
+        return $this->natures;
+    }
+
+    public function addNature(Nature $nature): static
+    {
+        if (!$this->natures->contains($nature)) {
+            $this->natures->add($nature);
+            $nature->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNature(Nature $nature): static
+    {
+        if ($this->natures->removeElement($nature)) {
+            // set the owning side to null (unless already changed)
+            if ($nature->getUser() === $this) {
+                $nature->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Nature>
+     */
+    public function getNatureAnswers(): Collection
+    {
+        return $this->natureAnswers;
+    }
+
+    public function addNatureAnswer(Nature $natureAnswer): static
+    {
+        if (!$this->natureAnswers->contains($natureAnswer)) {
+            $this->natureAnswers->add($natureAnswer);
+            $natureAnswer->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNatureAnswer(Nature $natureAnswer): static
+    {
+        if ($this->natureAnswers->removeElement($natureAnswer)) {
+            // set the owning side to null (unless already changed)
+            if ($natureAnswer->getUser() === $this) {
+                $natureAnswer->setUser(null);
+            }
+        }
 
         return $this;
     }

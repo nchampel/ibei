@@ -40,7 +40,7 @@ class Purchase
     #[ORM\Column]
     private ?int $gain = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $boughtAt = null;
 
     private bool $isClaimable = true;

@@ -34,6 +34,9 @@ class PurchaseController extends AbstractController
         $userNotConnected = ["tab" => "show active", "nav" => "active"];
         $purchasesPossessed = [];
         if ($user) {
+            if(!$user->getNature()){
+                return $this->redirectToRoute('app_user_determine_nature');
+            }
             $purchasesPossessed = $purchaseRepository->findByUserNull(false, $user->getId());
             // on rajoute l'aspect claimable ou pas
             foreach($purchasesPossessed as $purchaseP){
@@ -45,19 +48,29 @@ class PurchaseController extends AbstractController
         }
         // $user = $userRepository->find($this->getUser());
         $purchasesBuyable = $purchaseRepository->findByUserNull(true);
-        dump($purchasesPossessed);
+        // regarder si les objets achetables peuvent être achetés
+        $isPurchaseBuyable = false;
+        // $purchasesBuyable = $purchaseRepository->findByUserNull(true);
+        foreach($purchasesBuyable as $purchase){
+            if($user && $purchase->getPrice() <= $user->getMoney()){
+                $isPurchaseBuyable = true;
+            }
+        }
+        // dump($purchasesPossessed);
         return $this->render('purchase/index.html.twig', [
             // 'purchases' => $purchaseRepository->findAll(),
             'purchasesBuyable' => $purchasesBuyable,
             'purchasesPossessed' => $purchasesPossessed,
             'userNotconnected' => $userNotConnected,
             'userConnected' => $userConnected,
+            'isPurchaseBuyable' => $isPurchaseBuyable
         ]);
     }
 
     #[Route('/harvest/{id}', name: 'harvest')]
-    public function harvest(Purchase $purchase)
+    public function harvest(Purchase $purchase, PurchaseRepository $purchaseRepository)
     {
+        // protéger
         $gain = $purchase->getGain();
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -68,12 +81,21 @@ class PurchaseController extends AbstractController
                 return new JsonResponse(['isClaimable' => false, 'money' => $money, 'cooldown' => $purchase->getCooldown()]);
             
         } else {
-            $user->setMoney($money + $gain);
+            $newMoney = $money + $gain;
+            $user->setMoney($newMoney);
+            $exp = $user->getExp();
+            // $expPurchase = $purchase->getProduct->getExp();
+            $expPurchase = 1;
+            $newExp = $exp + $expPurchase;
+            $user->setExp($newExp);
             $purchase->setClaimedAt(new \DateTimeImmutable());
             $this->manager->persist($user);
             $this->manager->persist($purchase);
             $this->manager->flush();
-            return new JsonResponse(['isClaimable' => true, 'money' => $money + $gain, 'cooldown' => $purchase->getCooldown()]);
+            
+            return new JsonResponse(['isClaimable' => true, 'money' => $newMoney, 'cooldown' => $purchase->getCooldown(),
+                                       'exp' => $newExp,                       
+        ]);
         }
        
         
@@ -87,6 +109,8 @@ class PurchaseController extends AbstractController
     #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
     public function buy(Purchase $purchase, EntityManagerInterface $entityManager): Response
     {
+        // protéger
+
         /** @var \App\Entity\User $user */
         // il faudra changer l'user
         // mettre logique d'achat avec vérification de la somme, et afficher le bouton acheter en twig que si on a la somme

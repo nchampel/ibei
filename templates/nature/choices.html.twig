@@ -1,0 +1,19 @@
+{% extends 'basebootstrap.html.twig' %}
+
+{% block title %}Détermination de l'alignement
+{% endblock %}
+
+{% block body %}
+<div>
+{{ form_start(form) }}
+<div class="d-flex flex-column align-items-center">
+
+{{ form_label(form.nature)}}
+{{ form_widget(form.nature)}}
+
+    <button type="submit" id="submitBtn" class="btn mt-4">Envoyer</button>
+</div>
+
+{{ form_end(form) }}
+{% endblock %}
+

@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'basebootstrap.html.twig' %}
 
 {% block title %}Purchase index
 {% endblock %}
@@ -6,18 +6,16 @@
 {# @var purchasesBuyable \App\Entity\Purchase[] #}
 
 {% block body %}
-	<h1>Purchase index</h1>
-	{% if app.user %}
-		<p>{{ app.user.pseudo }}</p>
-		<a href={{ path('app_logout') }}>Se déconnecter</a>
-	{% else %}
-		<a href={{ path('app_login') }}>Se connecter</a>
-	{% endif %}
-	{% if app.user %}
+	{# <h1>Purchase index</h1> #}
+	
+	{# {% if app.user %}
 		<p id="money">Argent :
-			{{ app.user.money }}
+			{{ app.user.money | format_number }}
 			€</p>
-	{% endif %}
+		<p id="exp">Expérience :
+			{{ app.user.exp | format_number }}
+			</p>
+	{% endif %} #}
 	{# <table class="table">
 					        <thead>
 					            <tr>
@@ -30,8 +28,15 @@
 					        </thead>
 					        <tbody> #}
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
-		<li class="nav-item">
-			<a class="nav-link {{ userNotconnected.nav }}" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">En vente</a>
+		<li class="nav-item custom-relative">
+			<a class="nav-link {{ userNotconnected.nav }}" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">
+			En vente
+			{% if isPurchaseBuyable %}
+				<span class="custom-badge-notif">
+				<span class="pulse-char">!</span>
+				</span>
+			{% endif %}
+			</a>
 		</li>
 		<li class="nav-item">
 			<a class="nav-link {{ userConnected.nav }}" id="possessed-tab" data-bs-toggle="tab" href="#possessed" role="tab">Possédés</a>
@@ -42,21 +47,22 @@
 			<div class="d-flex flow-row">
 				{% for purchase in purchasesBuyable %}
 					<div
-						class="card m-3 box-shadow-custom" style="width: 18rem;">
+						class="card m-3 box-shadow-custom custom-bg-card text-white" style="width: 18rem;">
 						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
-						<div class="card-body m-2">
+						<div class="card-body m-2 bg-gray-800 p-4 rounded-lg shadow-md">
 							<h5 class="card-title">{{ purchase.product.name }}</h5>
 							<p class="card-text">{{ purchase.product.description }}</p>
 							<p class="card-text">Gain :
-								{{ purchase.gain }}
+								{{ purchase.gain | format_number }}
 								€</p>
 							<p class="card-text">Cooldown :
 								{{ purchase.cooldown | duration_format }}</p>
 							<p class="card-text">Prix :
-								{{ purchase.price }}
+								{{ purchase.price | format_number }}
 								€</p>
-
-							<a href={{ path('app_purchase_buy', {'id': purchase.id} )}} class="btn btn-primary">Acheter</a>
+							{% if app.user %}
+								<a href={{ path('app_purchase_buy', {'id': purchase.id} )}} class="btn btn-primary">Acheter</a>
+							{% endif %}
 						</div>
 					</div>
 				{% endfor %}
@@ -78,35 +84,37 @@
 		<div class="tab-pane fade {{ userConnected.tab }}" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
 			<div class="d-flex flow-row">
 				{% for purchase in purchasesPossessed %}
-					<div
-						class="card m-3 box-shadow-custom" style="width: 18rem;">
+					<div class="card m-3 box-shadow-custom custom-bg-card text-white" style="width: 18rem;">
 						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
 						<div class="card-body">
 							<h5 class="card-title">{{ purchase.product.name }}</h5>
 							<p class="card-text">{{ purchase.product.description }}</p>
 							<p class="card-text">Gain :
-								{{ purchase.gain }}
+								{{ purchase.gain | format_number }}
 								€</p>
 							<p class="card-text">Cooldown :
 								{{ purchase.cooldown | duration_format }}</p>
-							<span id="compteur-{{ purchase.id }}" style="margin-left: 10px;"></span>
+							<span id="compteur-harvest-{{ purchase.id }}" data-id={{ purchase.id }} class="ml-2"></span>
 							{# <a id="harvest-{{ purchase.id }}" href={{ path('harvest', {id: purchase.id } ) }} class="btn btn-primary">Récolter</a> #}
+							<div id="div-btn-harvest-{{ purchase.id }}" data-id={{ purchase.id }}>
 							{% if purchase.isClaimable %}
-								<button data-id={{ purchase.id }} data-url="{{ path('harvest', {id: purchase.id }) }}" 
+								<button id="harvest-btn-{{ purchase.id }}" data-id={{ purchase.id }} data-url="{{ path('harvest', {id: purchase.id }) }}" 
 								class="btn btn-primary harvest-btn">Récolter</button>
 							{% else %}
-								<p id="remainedSeconds">{{ purchase.remainedSeconds }}</p>
+								<p id="remained-seconds-harvest-{{ purchase.id }}" data-id={{ purchase.id }}>{{ purchase.remainedSeconds | duration_format }}</p>
 							{% endif %}
+							</div>
 						</div>
 					</div>
 				{% endfor %}
 			</div>
+		</div>
 			{% if purchasesPossessed | length == 0 %}
 
 				<p>Pas de produits possédés</p>
 			{% endif %}
 
-		</div>
+		
 	</div>
 
 	{# </tbody>
@@ -116,108 +124,179 @@
 {% endblock %}
 {% block script %}
 	<script>
+	// pour les tabs
 		document.addEventListener( "DOMContentLoaded", function () {
-let tabLinks = document.querySelectorAll( ".nav-link" );
-tabLinks.forEach( link => {
-link.addEventListener( "click", function ( event ) {
-event.preventDefault();
-let activeTab = document.querySelector( ".tab-pane.active" );
-let newTab = document.querySelector( this.getAttribute( "href" ) );
+			let tabLinks = document.querySelectorAll( ".nav-link" );
+				tabLinks.forEach( link => {
+					link.addEventListener( "click", function ( event ) {
+					event.preventDefault();
+					let activeTab = document.querySelector( ".tab-pane.active" );
+					let newTab = document.querySelector( this.getAttribute( "href" ) );
 
-if ( activeTab ) 
-activeTab.classList.remove( "show", "active" );
+					if ( activeTab ) 
+					activeTab.classList.remove( "show", "active" );
 
-if ( newTab ) 
-newTab.classList.add( "show", "active" );
+					if ( newTab ) 
+					newTab.classList.add( "show", "active" );
 
-tabLinks.forEach( tab => tab.classList.remove( "active" ) );
-this.classList.add( "active" );
-} );
-} );
-} );
-function startCountdown($button, $counter, duree) {
-    let tempsRestant = duree;
+					tabLinks.forEach( tab => tab.classList.remove( "active" ) );
+					this.classList.add( "active" );
+				} );
+			} );
+		} );
+		function startCountdown($button, $counter, duree) {
+			let tempsRestant = duree;
 
-    // $button.prop('disabled', true);
-    $counter.text(formatTime(tempsRestant));
+			// $button.prop('disabled', true);
+			$counter.text(formatTime(tempsRestant));
 
-    const intervalle = setInterval(() => {
-        tempsRestant--;
-        $counter.text(formatTime(tempsRestant));
+			const intervalle = setInterval(() => {
+				tempsRestant--;
+				$counter.text(formatTime(tempsRestant));
 
-        if (tempsRestant <= 0) {
-            clearInterval(intervalle);
-            $button.prop('disabled', false);
-            $counter.text('');
+				if (tempsRestant <= 0) {
+					clearInterval(intervalle);
+					$button.prop('disabled', false);
+					$counter.text('');
+					
+					$button.show();
+				}
+			}, 1000);
 			
-			$button.show();
-        }
-    }, 1000);
-	
-}
-function formatTime(seconds) {
-                const hours = Math.floor(seconds / 3600);  // Nombre d'heures
-                const minutes = Math.floor((seconds % 3600) / 60);  // Nombre de minutes
-                const remainingSeconds = seconds % 60;  // Nombre de secondes restantes
+		}
+		function formatTime(seconds) {
+			const hours = Math.floor(seconds / 3600);  // Nombre d'heures
+			const minutes = Math.floor((seconds % 3600) / 60);  // Nombre de minutes
+			const remainingSeconds = seconds % 60;  // Nombre de secondes restantes
 
-                // Ajouter un zéro devant les chiffres inférieurs à 10
-                return (
-                    String(hours).padStart(2, '0') + ":" +
-                    String(minutes).padStart(2, '0') + ":" +
-                    String(remainingSeconds).padStart(2, '0')
-                );
-            }
+			// Ajouter un zéro devant les chiffres inférieurs à 10
+			return (
+				String(hours).padStart(2, '0') + ":" +
+				String(minutes).padStart(2, '0') + ":" +
+				String(remainingSeconds).padStart(2, '0')
+			);
+		}
 
+		function convertToSeconds(timeString) {
+			const timeArray = timeString.split(':'); // On divise la chaîne de caractères
+			const hours = parseInt(timeArray[0]);    // Heures
+			const minutes = parseInt(timeArray[1]);  // Minutes
+			const seconds = parseInt(timeArray[2]);  // Secondes
 
-    $(document).ready(function () {
+			return (hours * 3600) + (minutes * 60) + seconds; // Conversion en secondes
+		}
+    	$(document).ready(function () {
 
-		
+			$('[id^="remained-seconds-harvest-"]').each(function() {
+				// console.log($(this).text()); // ou fais autre chose
+				let remainedParagraph = $(this);
+				let fullId = this.id; // ou $(this).attr('id');
+    
+				// Extraire uniquement le nombre à la fin avec une regex
+				let id = fullId.match(/\d+$/)[0];
+				let counterValueTemp = $(this).text();
+				let counterValue = convertToSeconds(counterValueTemp);
+				// console.log(counterValue);
+				
+				function updateCounter() {
+					// console.log('c', counterValue)
+					if (counterValue >= 0) {
+						// console.log(remainedParagraph)
+						remainedParagraph.text(formatTime(counterValue));
+						counterValue--;
+					}
+				}
 
-		let counterValue = $("#remainedSeconds").text();
-		console.log(counterValue);
-            
-            function updateCounter() {
-                if (counterValue >= 0) {
-                    $('#remainedSeconds').text(formatTime(counterValue));
-                    counterValue--;
-                }
-            }
+				// Appel de la fonction toutes les secondes (1000ms)
+				let interval = setInterval(updateCounter, 1000);
 
-            // Appel de la fonction toutes les secondes (1000ms)
-            let interval = setInterval(updateCounter, 1000);
+				// Arrêter le décompte quand il arrive à zéro
+				setTimeout(function() {
+					clearInterval(interval);
+					// faire réapparaître le bouton
+					if(counterValue == -1){
+						console.log('fini')
+						let idBtn = '#harvest-btn-' + id
 
-            // Arrêter le décompte quand il arrive à zéro
-            setTimeout(function() {
-                clearInterval(interval);
-            }, (counterValue + 1) * 1000); // Arrêter après le dernier décompte
+						// Créer le bouton dynamiquement avec jQuery
+						let $button = $('<button>', {
+							id: 'harvest-btn-' + id,
+							'data-id': id,
+							'data-url': '/purchase/harvest/' + id,
+							class: 'btn btn-primary harvest-btn',
+							text: 'Récolter'
+						});
+
+						$button.on('click', function() {
+							const $button = $(this);
+							$button.hide();
+							const id = $button.data('id');
+							const url = $button.data('url');
+							const $counter = $('#compteur-harvest-' + id);
+							// console.log('#compteur-' + id);
+							$counter.text("Récupération de l'argent");
+							
+
+							// Appel AJAX vers la route Symfony
+							$.ajax({
+								url: url,
+								method: 'GET', // ou POST selon ta route
+								success: function (response) {
+									if(response.isClaimable){
+
+										$("#money").text("Argent : " + response.money.toLocaleString('fr-FR') + " €")
+										$("#exp").text("Experience : " + response.exp)
+										startCountdown($button, $counter, response.cooldown);
+									}
+									
+								},
+								error: function (err) {
+									console.error('Erreur AJAX :', err);
+								}
+							});
+						});
+
+						// Ajouter le bouton au DOM (par exemple à un élément avec l'ID #container)
+						$('#div-btn-harvest-' + id).append($button);
+
+						let t = $(idBtn)
+						console.log(t)
+						let idP = '#remained-seconds-harvest-' + id
+						$(idP).hide()
+					}
+				}, (counterValue + 2) * 1000); // Arrêter après le dernier décompte
+			});
+
         
 
-        $('.harvest-btn').click(function () {
-            const $button = $(this);
-			$button.hide();
-            const id = $button.data('id');
-            const url = $button.data('url');
-            const $counter = $('#compteur-' + id);
-			$counter.text("Récupération de l'argent");
-			
+			$('.harvest-btn').click(function () {
+				const $button = $(this);
+				$button.hide();
+				const id = $button.data('id');
+				const url = $button.data('url');
+				const $counter = $('#compteur-harvest-' + id);
+				// console.log('#compteur-' + id);
+				$counter.text("Récupération de l'argent");
+				
 
-            // Appel AJAX vers la route Symfony
-            $.ajax({
-				url: url,
-                method: 'GET', // ou POST selon ta route
-                success: function (response) {
-					if(response.isClaimable){
+				// Appel AJAX vers la route Symfony
+				$.ajax({
+					url: url,
+					method: 'GET', // ou POST selon ta route
+					success: function (response) {
+						if(response.isClaimable){
 
-						$("#money").text("Argent : " + response.money + " €")
-						startCountdown($button, $counter, response.cooldown);
+							$("#money").text("Argent : " + response.money.toLocaleString('fr-FR') + " €")
+							$("#exp").text("Experience : " + response.exp)
+							startCountdown($button, $counter, response.cooldown);
+						}
+						
+					},
+					error: function (err) {
+						console.error('Erreur AJAX :', err);
 					}
-					
-                },
-                error: function (err) {
-                    console.error('Erreur AJAX :', err);
-                }
-            });
-        });
-    });
+				});
+			});
+    	});
 	</script>
 {% endblock %}
