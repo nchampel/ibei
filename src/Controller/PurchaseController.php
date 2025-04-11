@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use App\Services\PurchaseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,10 +23,12 @@ class PurchaseController extends AbstractController
 {
     private EntityManagerInterface $manager;
     private PurchaseService $purchaseService;
-    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService)
+    private $params;
+    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService, ParameterBagInterface $params)
     {
         $this->manager = $entityManager;
         $this->purchaseService = $purchaseService;
+        $this->params = $params;
     }
     /**
      * @param \App\Entity\Purchase[] $purchasesBuyable
@@ -203,10 +206,10 @@ class PurchaseController extends AbstractController
         string $token,
         EntityManagerInterface $entityManager,
         PurchaseRepository $purchaseRepository,
-        ProductInfosRepository $productInfosRepository
+        ProductInfosRepository $productInfosRepository,
     ): Response {
         // tester http://localhost:8000/purchase/generate/abcde
-        if ($token == "Abcde123456&") {
+        if ($token == $_ENV['APP_TOKEN']) {
             $productsBuyable = $purchaseRepository->findByUserNull(true);
             foreach ($productsBuyable as $product) {
 
