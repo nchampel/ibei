@@ -5,6 +5,7 @@ twig:
     # Ajout du service à l'environnement Twig
     globals:
         user: '@App\Services\UserService'
+        myapp: '@App\Services\AppService'
 
 when@test:
     twig:

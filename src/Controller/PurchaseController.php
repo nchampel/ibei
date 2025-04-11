@@ -5,13 +5,13 @@ namespace App\Controller;
 use App\Entity\Purchase;
 use App\Form\PurchaseType;
 use App\Repository\IdleRepository;
+use App\Repository\PotRepository;
 use App\Repository\ProductInfosRepository;
 use App\Repository\PurchaseRepository;
 use App\Repository\UserRepository;
 use App\Services\PurchaseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,12 +23,10 @@ class PurchaseController extends AbstractController
 {
     private EntityManagerInterface $manager;
     private PurchaseService $purchaseService;
-    private $params;
-    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService, ParameterBagInterface $params)
+    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService)
     {
         $this->manager = $entityManager;
         $this->purchaseService = $purchaseService;
-        $this->params = $params;
     }
     /**
      * @param \App\Entity\Purchase[] $purchasesBuyable
@@ -76,7 +74,7 @@ class PurchaseController extends AbstractController
     }
 
     #[Route('/harvest/{id}', name: 'harvest')]
-    public function harvest(Purchase $purchase, PurchaseRepository $purchaseRepository)
+    public function harvest(Purchase $purchase)
     {
         $gain = $purchase->getGain();
         /** @var \App\Entity\User $user */
@@ -120,7 +118,7 @@ class PurchaseController extends AbstractController
      * @param \App\Entity\User $user
      */
     #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
-    public function buy(Purchase $purchase, EntityManagerInterface $entityManager): Response
+    public function buy(Purchase $purchase, EntityManagerInterface $entityManager, PotRepository $potRepository): Response
     {
 
         /** @var \App\Entity\User $user */
@@ -139,7 +137,13 @@ class PurchaseController extends AbstractController
             $user->setMoney($money - $price);
             $purchase->setUser($user);
             $purchase->setBoughtAt(new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris')));
+            $pot = $potRepository->findOneBy(['type' => 'jackpot']);
+            $potGain = $pot->getGain();
+            $newPotGain = $potGain + round($price / 100);
+            $pot->setGain($newPotGain);
+            // gérer jackpot
             $entityManager->persist($user);
+            $entityManager->persist($pot);
             $entityManager->persist($purchase);
             $entityManager->flush();
             $this->addFlash('success', "Vous avez acheté " . $purchase->getProduct()->getName());
@@ -150,53 +154,37 @@ class PurchaseController extends AbstractController
     }
 
     #[Route('/harvest/all/{id}', name: 'app_purchase_harvest_all')]
-    public function harvestAll($id, PurchaseRepository $purchaseRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    public function harvestAll($id, UserRepository $userRepository): Response
     {
         $user = $userRepository->findOneBy(['id' => $id]);
         if(!$user){
             return $this->redirectToRoute('app_login');
         }
-        $money = $user->getMoney();
-        $xp = $user->getExp();
-        $purchasesHarvestable = $purchaseRepository->findBy(['user' => $user]);
-        if(count($purchasesHarvestable) > 0){
-            $harvestedCount = 0;
-            foreach($purchasesHarvestable as $purchase){
-                if($purchase->updateIsClaimable()){
-                    $harvestedCount++;
-                    $gain = $purchase->getGain();
-                    $money += $gain;
-                    // mettre l'xp moins forte que récolte normale
-                    $xp += 1;
-                    $purchase->setClaimedAt(new \DateTime('now'));
-                    $entityManager->persist($purchase);
-                }
-            }
-            if($harvestedCount > 0){
-                $user->setMoney($money);
-                $user->setExp($xp);
-                $entityManager->persist($user);
-                $entityManager->flush();
-            }
-        }
+        $this->purchaseService->harvestProduct($user);
         return $this->redirectToRoute('app_purchase_index');
     }
 
     #[Route('/harvest/all/idle/{token}', name: 'app_purchase_harvest_all_idle')]
-    public function harvestAllIdle(string $token, IdleRepository $idleRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    public function harvestAllIdle(string $token, UserRepository $userRepository): Response
     {
-        if ($token == "abcde") {
-        $users = $userRepository->findAll();
-        // à optimiser
-        foreach($users as $user){
-
-            $hasIdleActive = $idleRepository->findOneBy(['user' => $user, 'type' => 'récolte produits', 'active' => true]);
-            if($hasIdleActive){
-
+        // à tester
+        if ($token == $_ENV['APP_TOKEN']) {
+            $users = $userRepository->findAll();
+            // à optimiser
+            foreach($users as $user){
+                $idles = $user->getIdles();
+                foreach($idles as $idle){
+                    if($idle->getType() == 'récolte produits' && $idle->isActive()){
+                        // à chaque user je fais un flush
+                        $this->purchaseService->harvestProduct($user);
+                    }
+                }
+                // $hasIdleActive = $idleRepository->findOneBy(['user' => $user, 'type' => 'récolte produits', 'active' => true]);
+                // if($hasIdleActive){
+                // }
             }
+            
         }
-        
-    }
         return $this->redirectToRoute('app_purchase_index');
     }
 

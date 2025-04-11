@@ -41,6 +41,10 @@
 	font-weight: bold;
 }
 
+.custom-space-between{
+	justify-content: space-between;
+}
+
 .custom-badge-notif {
 	position: absolute;
 	top: 5px ;

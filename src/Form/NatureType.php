@@ -16,8 +16,12 @@ class NatureType extends AbstractType
         $choices2 = QuestionChoicesEnum::QUESTION2;
         $choices3 = QuestionChoicesEnum::QUESTION3;
         $choices4 = QuestionChoicesEnum::QUESTION4;
+        shuffle($choices1);
+        shuffle($choices2);
+        shuffle($choices3);
+        shuffle($choices4);
         $builder
-            ->add('question1', ChoiceType::class, [
+        ->add('question1', ChoiceType::class, [
                 'label' => 'Vous voyez un bébé chat.',
                 'choices' => array_flip($choices1),
                 'expanded' => true,

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PurchaseService
@@ -12,9 +13,8 @@ class PurchaseService
         $this->entityManager = $entityManagerInterface;
     }
     
-    public function harvestProduct($user): void
+    public function harvestProduct(User $user): void
     {
-        /** @var \App\Entity\User $user */
         $money = $user->getMoney();
         $xp = $user->getExp();
         $purchases = $user->getPurchases();
@@ -29,12 +29,12 @@ class PurchaseService
                 $purchase->setClaimedAt(new \DateTime('now'));
                 $this->entityManager->persist($purchase);
             }
-            if($harvestedCount > 0){
-                $user->setMoney($money);
-                $user->setExp($xp);
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
-            }
+        }
+        if($harvestedCount > 0){
+            $user->setMoney($money);
+            $user->setExp($xp);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
         }
         
     }

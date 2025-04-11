@@ -34,19 +34,24 @@
 		            </nav>
 		        </div>
 		    </header> #}
-			<div class="w3-bar w3-black menu-top-height">
-            <a href={{ path('app_home')}} class="w3-bar-item w3-button">Ibei</a>
-			{# <a href={{ path('app_ranking')}} class="w3-bar-item w3-button">Classement</a> #}
-			<div class="w3-right">
-				{% if app.user %}
-					<span class="w3-bar-item">Joueur :
-						{{user.getPseudo()}}</span>
-					<a class="w3-bar-item" href={{ path('app_logout') }}>Se déconnecter</a>
-				{% else %}
-					<a class="w3-bar-item" href={{ path('app_login') }}>Se connecter</a>
-					<a class="w3-bar-item" href={{ path('app_register') }}>S'inscrire</a>
-				{% endif %}
-			</div>
+			<div class="w3-black menu-top-height d-flex align-items-center justify-content-between">
+                <div>
+                    <a href={{ path('app_home')}} class="w3-button">Ibei</a>
+                </div>
+                {# <a href={{ path('app_ranking')}} class="w3-bar-item w3-button">Classement</a> #}
+                <div>
+                <span class="">Jackpot minimum : {{ myapp.getJackpot() }} €, remporté le</span>
+                </div>
+                <div class="">
+                    {% if app.user %}
+                        <span class="">Joueur :
+                            {{user.getPseudo()}}</span>
+                        <a class="" href={{ path('app_logout') }}>Se déconnecter</a>
+                    {% else %}
+                        <a class="" href={{ path('app_login') }}>Se connecter</a>
+                        <a class="" href={{ path('app_register') }}>S'inscrire</a>
+                    {% endif %}
+                </div>
 		</div>
 
 
