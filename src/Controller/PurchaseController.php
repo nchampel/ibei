@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Purchase;
 use App\Form\PurchaseType;
+use App\Repository\IdleRepository;
 use App\Repository\ProductInfosRepository;
 use App\Repository\PurchaseRepository;
+use App\Repository\UserRepository;
+use App\Services\PurchaseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,9 +21,11 @@ class PurchaseController extends AbstractController
 
 {
     private EntityManagerInterface $manager;
-    public function __construct(EntityManagerInterface $entityManager)
+    private PurchaseService $purchaseService;
+    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService)
     {
         $this->manager = $entityManager;
+        $this->purchaseService = $purchaseService;
     }
     /**
      * @param \App\Entity\Purchase[] $purchasesBuyable
@@ -70,10 +75,15 @@ class PurchaseController extends AbstractController
     #[Route('/harvest/{id}', name: 'harvest')]
     public function harvest(Purchase $purchase, PurchaseRepository $purchaseRepository)
     {
-        // protéger
         $gain = $purchase->getGain();
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_purchase_index');
+        }
+        if(!$user->getNature()){
+            return $this->redirectToRoute('app_user_determine_nature');
+        }
         $money = $user->getMoney();
 
         $isClaimable = $purchase->getIsClaimable();
@@ -85,7 +95,7 @@ class PurchaseController extends AbstractController
             $user->setMoney($newMoney);
             $exp = $user->getExp();
             // $expPurchase = $purchase->getProduct->getExp();
-            $expPurchase = 1;
+            $expPurchase = 2;
             $newExp = $exp + $expPurchase;
             $user->setExp($newExp);
             $purchase->setClaimedAt(new \DateTimeImmutable());
@@ -109,12 +119,16 @@ class PurchaseController extends AbstractController
     #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
     public function buy(Purchase $purchase, EntityManagerInterface $entityManager): Response
     {
-        // protéger
 
         /** @var \App\Entity\User $user */
-        // il faudra changer l'user
         // mettre logique d'achat avec vérification de la somme, et afficher le bouton acheter en twig que si on a la somme
         $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_purchase_index');
+        }
+        if(!$user->getNature()){
+            return $this->redirectToRoute('app_user_determine_nature');
+        }
         // $user = $userRepository->find($security->getUser());
         $money = $user->getMoney();
         $price = $purchase->getPrice();
@@ -132,61 +146,55 @@ class PurchaseController extends AbstractController
         return $this->redirectToRoute('app_purchase_index');
     }
 
-    #[Route('/new', name: 'app_purchase_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/harvest/all/{id}', name: 'app_purchase_harvest_all')]
+    public function harvestAll($id, PurchaseRepository $purchaseRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        $purchase = new Purchase();
-        $form = $this->createForm(PurchaseType::class, $purchase);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($purchase);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_purchase_index', [], Response::HTTP_SEE_OTHER);
+        $user = $userRepository->findOneBy(['id' => $id]);
+        if(!$user){
+            return $this->redirectToRoute('app_login');
         }
-
-        return $this->renderForm('purchase/new.html.twig', [
-            'purchase' => $purchase,
-            'form' => $form,
-        ]);
+        $money = $user->getMoney();
+        $xp = $user->getExp();
+        $purchasesHarvestable = $purchaseRepository->findBy(['user' => $user]);
+        if(count($purchasesHarvestable) > 0){
+            $harvestedCount = 0;
+            foreach($purchasesHarvestable as $purchase){
+                if($purchase->updateIsClaimable()){
+                    $harvestedCount++;
+                    $gain = $purchase->getGain();
+                    $money += $gain;
+                    // mettre l'xp moins forte que récolte normale
+                    $xp += 1;
+                    $purchase->setClaimedAt(new \DateTime('now'));
+                    $entityManager->persist($purchase);
+                }
+            }
+            if($harvestedCount > 0){
+                $user->setMoney($money);
+                $user->setExp($xp);
+                $entityManager->persist($user);
+                $entityManager->flush();
+            }
+        }
+        return $this->redirectToRoute('app_purchase_index');
     }
 
-    #[Route('/{id}', name: 'app_purchase_show', methods: ['GET'])]
-    public function show(Purchase $purchase): Response
+    #[Route('/harvest/all/idle/{token}', name: 'app_purchase_harvest_all_idle')]
+    public function harvestAllIdle(string $token, IdleRepository $idleRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('purchase/show.html.twig', [
-            'purchase' => $purchase,
-        ]);
-    }
+        if ($token == "abcde") {
+        $users = $userRepository->findAll();
+        // à optimiser
+        foreach($users as $user){
 
-    #[Route('/{id}/edit', name: 'app_purchase_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(PurchaseType::class, $purchase);
-        $form->handleRequest($request);
+            $hasIdleActive = $idleRepository->findOneBy(['user' => $user, 'type' => 'récolte produits', 'active' => true]);
+            if($hasIdleActive){
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_purchase_index', [], Response::HTTP_SEE_OTHER);
+            }
         }
-
-        return $this->renderForm('purchase/edit.html.twig', [
-            'purchase' => $purchase,
-            'form' => $form,
-        ]);
+        
     }
-
-    #[Route('/{id}', name: 'app_purchase_delete', methods: ['POST'])]
-    public function delete(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete' . $purchase->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($purchase);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_purchase_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_purchase_index');
     }
 
     #[Route('/generate/{token}', name: 'app_purchases_generate', methods: ['GET'])]
@@ -198,7 +206,7 @@ class PurchaseController extends AbstractController
         ProductInfosRepository $productInfosRepository
     ): Response {
         // tester http://localhost:8000/purchase/generate/abcde
-        if ($token == "abcde") {
+        if ($token == "Abcde123456&") {
             $productsBuyable = $purchaseRepository->findByUserNull(true);
             foreach ($productsBuyable as $product) {
 
@@ -225,4 +233,69 @@ class PurchaseController extends AbstractController
 
         return $this->redirectToRoute('app_purchase_index');
     }
+    
+    #[Route('/new', name: 'app_purchase_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        // if (!$user) {
+            return $this->redirectToRoute('app_purchase_index');
+        // }
+        $purchase = new Purchase();
+        $form = $this->createForm(PurchaseType::class, $purchase);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($purchase);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_purchase_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('purchase/new.html.twig', [
+            'purchase' => $purchase,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_purchase_show', methods: ['GET'])]
+    public function show(Purchase $purchase): Response
+    {
+        return $this->redirectToRoute('app_purchase_index');
+        return $this->render('purchase/show.html.twig', [
+            'purchase' => $purchase,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_purchase_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
+    {
+        return $this->redirectToRoute('app_purchase_index');
+        $form = $this->createForm(PurchaseType::class, $purchase);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_purchase_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('purchase/edit.html.twig', [
+            'purchase' => $purchase,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_purchase_delete', methods: ['POST'])]
+    public function delete(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
+    {
+        return $this->redirectToRoute('app_purchase_index');
+        if ($this->isCsrfTokenValid('delete' . $purchase->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($purchase);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_purchase_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    
 }

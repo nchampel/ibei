@@ -64,7 +64,7 @@ class Purchase
     }
     }
 
-    public function updateIsClaimable(): void
+    public function updateIsClaimable(): bool
 {
     // Récupérer la date 'claimedAt' en UTC depuis la base de données
     $claimedAtBDD = $this->getClaimedAt();
@@ -80,9 +80,11 @@ class Purchase
 
         // Comparer la différence entre les timestamps (en secondes)
         $this->setIsClaimable($nowSecondes - $claimedAt >= $this->getCooldown());
+        return $nowSecondes - $claimedAt >= $this->getCooldown();
     } else {
         // Si pas de 'claimedAt', c'est claimable
         $this->setIsClaimable(true);
+        return true;
     }
 }
 

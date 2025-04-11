@@ -18,6 +18,9 @@ class UserController extends AbstractController
     {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_purchase_index');
+        }
         if($user->getNature()){
             return $this->redirectToRoute('app_purchase_index');
         }
@@ -27,7 +30,6 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
             $answers = $form->getData();
-            dump($answers);
             $values = array_values($answers);
             $sotoc_score = 0;
             $flumia_score = 0;
@@ -76,17 +78,15 @@ class UserController extends AbstractController
             // $correspondances = ['s' => 'altheron', 'a' => 'nano', 'o' => 'sora', 'e' =>'flumia', 'r'=>'sotoc'];
             if(count($clefs_max) == 1){
                 $nature = $clefs_max[0];
-                // $user->setNature($nature);
-                // $entityManager->persist($user);
-                // $entityManager->flush();
-                // return $this->redirectToRoute('app_purchase_index');
-                dump($nature);
+                $user->setNature($nature);
+                $entityManager->persist($user);
+                $entityManager->flush();
+                return $this->redirectToRoute('app_purchase_index');
             } else {
                 $natures = [];
                 foreach($clefs_max as $clef_max){
                     $natures[] = $clef_max;
                 }
-                dump($natures);
                 // rediriger vers le choix d'un alignement avec les descriptions 
                 return $this->redirectToRoute('app_user_determine_nature_choices', [
                     'choices' => json_encode($natures) // Tu peux encoder le tableau en JSON pour le passer en paramètre
@@ -106,6 +106,9 @@ class UserController extends AbstractController
     {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_purchase_index');
+        }
         if($user->getNature()){
             return $this->redirectToRoute('app_purchase_index');
         }
@@ -116,7 +119,6 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
             $answer = $form->getData();
-            dump($answer);
             $user->setNature($answer['nature']);
            
             $entityManager->persist($user);

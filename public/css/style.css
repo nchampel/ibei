@@ -37,6 +37,10 @@
 	}
 }
 
+.text-bold{
+	font-weight: bold;
+}
+
 .custom-badge-notif {
 	position: absolute;
 	top: 5px ;
@@ -47,6 +51,7 @@
 	background: linear-gradient(145deg, #ff3d00, #e60707) !important;
 	border: 2px solid yellow !important;
 	color: rgb(225, 255, 0) !important;
+	text-shadow:1px 1px 0 #000;
 
 	width: 20px;
 	height: 20px;
@@ -104,5 +109,21 @@
 }
 .custom-form-group{
 	display: flex;
+}
+.menu-top-height {
+    height: 40px; /* ou autre valeur correspondant à ton menu */
+}
+.full-height-sidebar {
+    height: calc(100vh - 40px - 40px); /* adapte selon la hauteur de ton header */
+    position: sticky;
+    top: 40px; /* même valeur que ton header */
+}
+.full-height-connexion {
+    height: calc(100vh - 40px); /* adapte selon la hauteur de ton header */
+    position: sticky;
+    top: 40px; /* même valeur que ton header */
+}
 
+.custom-footer {
+    height: 40px; /* ou autre valeur correspondant à ton menu */
 }

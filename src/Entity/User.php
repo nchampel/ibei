@@ -56,10 +56,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Nature::class, orphanRemoval: true)]
     private Collection $natureAnswers;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Idle::class, orphanRemoval: true)]
+    private Collection $idles;
+
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
         $this->natureAnswers = new ArrayCollection();
+        $this->idles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -244,36 +248,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Nature>
-     */
-    public function getNatures(): Collection
-    {
-        return $this->natures;
-    }
-
-    public function addNature(Nature $nature): static
-    {
-        if (!$this->natures->contains($nature)) {
-            $this->natures->add($nature);
-            $nature->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNature(Nature $nature): static
-    {
-        if ($this->natures->removeElement($nature)) {
-            // set the owning side to null (unless already changed)
-            if ($nature->getUser() === $this) {
-                $nature->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
+    
     /**
      * @return Collection<int, Nature>
      */
@@ -298,6 +273,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($natureAnswer->getUser() === $this) {
                 $natureAnswer->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Idle>
+     */
+    public function getIdles(): Collection
+    {
+        return $this->idles;
+    }
+
+    public function addIdle(Idle $idle): static
+    {
+        if (!$this->idles->contains($idle)) {
+            $this->idles->add($idle);
+            $idle->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdle(Idle $idle): static
+    {
+        if ($this->idles->removeElement($idle)) {
+            // set the owning side to null (unless already changed)
+            if ($idle->getUser() === $this) {
+                $idle->setUser(null);
             }
         }
 

@@ -4,7 +4,6 @@ twig:
         - 'bootstrap_5_layout.html.twig'
     # Ajout du service à l'environnement Twig
     globals:
-        alignement: '@App\Services\AlignementService'
         user: '@App\Services\UserService'
 
 when@test:

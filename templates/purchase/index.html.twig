@@ -42,12 +42,21 @@
 			<a class="nav-link {{ userConnected.nav }}" id="possessed-tab" data-bs-toggle="tab" href="#possessed" role="tab">Possédés</a>
 		</li>
 	</ul>
+	<div class="d-flex align-items-center">
+		<p><a href={{ path('app_purchase_harvest_all', {id: app.user.id }) }} class="btn btn-primary mt-2">Tout récolter</a></p>
+		<p class="ml-2">Attention : Faire ceci vous octroiera moins d'expérience</p>
+	</div>
 	<div class="tab-content mt-3" id="myTabContent">
 		<div class="tab-pane fade {{ userNotconnected.tab }}" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
 			<div class="d-flex flow-row">
 				{% for purchase in purchasesBuyable %}
-					<div
+				<div
 						class="card m-3 box-shadow-custom custom-bg-card text-white" style="width: 18rem;">
+						{% if app.user.money >= purchase.price %}
+							<span class="custom-badge-notif">
+							<span class="pulse-char">!</span>
+							</span>
+						{% endif %}
 						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
 						<div class="card-body m-2 bg-gray-800 p-4 rounded-lg shadow-md">
 							<h5 class="card-title">{{ purchase.product.name }}</h5>

@@ -3,22 +3,28 @@
 {% block title %}Inscription{% endblock %}
 
 {% block body %}
-    <h1>S'inscrire</h1>
+    <div class="row d-flex flex-column align-items-center justify-content-center">
+                <h1 class="h3 mb-3 font-weight-normal">S'inscrire</h1>
+            <div class="col-2">
+        {{ form_errors(registrationForm) }}
 
-    {{ form_errors(registrationForm) }}
-
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.pseudo) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {# {{ form_row(registrationForm.agreeTerms) }} #}
-
-        <button type="submit" class="btn">Enregistrer</button>
-    {{ form_end(registrationForm) }}
-    <p>ou se connecter</p>
-    <a href={{ path('app_login')}}>connexion</a>
-    <p>retour</p>
-    <a href={{ path('app_purchase_index')}}>Retour</a>
+        {{ form_start(registrationForm) }}
+            {{ form_label(registrationForm.email) }}
+            {{ form_widget(registrationForm.email) }}
+            {{ form_label(registrationForm.pseudo) }}
+            {{ form_widget(registrationForm.pseudo) }}
+            {{ form_label(registrationForm.plainPassword) }}
+            {{ form_widget(registrationForm.plainPassword) }}
+            {# {{ form_row(registrationForm.pseudo) }}
+            {{ form_row(registrationForm.plainPassword, {
+                label: 'Password'
+            }) }} #}
+            {# {{ form_row(registrationForm.agreeTerms) }} #}
+            <div class="d-flex justify-content-center mt-4 mb-2">
+                <button type="submit" class="btn btn-primary btn-lg">Enregistrer</button>
+            </div>
+            </div>
+        {{ form_end(registrationForm) }}
+        <a href={{ path('app_login')}}>Connexion</a>
+    </div>
 {% endblock %}
