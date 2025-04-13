@@ -87,6 +87,7 @@ class UserController extends AbstractController
                 foreach($clefs_max as $clef_max){
                     $natures[] = $clef_max;
                 }
+                $entityManager->flush();
                 // rediriger vers le choix d'un alignement avec les descriptions 
                 return $this->redirectToRoute('app_user_determine_nature_choices', [
                     'choices' => json_encode($natures) // Tu peux encoder le tableau en JSON pour le passer en paramètre

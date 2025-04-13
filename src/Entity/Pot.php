@@ -46,7 +46,7 @@ class Pot
         return $this;
     }
 
-    public function isIsClaimed(): ?bool
+    public function isClaimed(): ?bool
     {
         return $this->isClaimed;
     }

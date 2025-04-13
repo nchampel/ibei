@@ -25,34 +25,62 @@
 
 		<!-- Barre du haut -->
 		{# <header class="bg-secondary shadow-sm">
-		        <div class="container-fluid px-4 py-3 d-flex justify-content-between align-items-center">
-		            <div class="fs-2 fw-bold">⚔️ Royaume de Fer</div>
-		            <nav class="d-flex gap-3">
-		                <a href="#" class="text-white text-decoration-none">Carte</a>
-		                <a href="#" class="text-white text-decoration-none">Alliances</a>
-		                <a href="#" class="text-white text-decoration-none">Profil</a>
-		            </nav>
-		        </div>
-		    </header> #}
-			<div class="w3-black menu-top-height d-flex align-items-center justify-content-between">
-                <div>
-                    <a href={{ path('app_home')}} class="w3-button">Ibei</a>
-                </div>
-                {# <a href={{ path('app_ranking')}} class="w3-bar-item w3-button">Classement</a> #}
-                <div>
-                <span class="">Jackpot minimum : {{ myapp.getJackpot() }} €, remporté le</span>
-                </div>
-                <div class="">
-                    {% if app.user %}
-                        <span class="">Joueur :
-                            {{user.getPseudo()}}</span>
-                        <a class="" href={{ path('app_logout') }}>Se déconnecter</a>
-                    {% else %}
-                        <a class="" href={{ path('app_login') }}>Se connecter</a>
-                        <a class="" href={{ path('app_register') }}>S'inscrire</a>
-                    {% endif %}
-                </div>
-		</div>
+				        <div class="container-fluid px-4 py-3 d-flex justify-content-between align-items-center">
+				            <div class="fs-2 fw-bold">⚔️ Royaume de Fer</div>
+				            <nav class="d-flex gap-3">
+				                <a href="#" class="text-white text-decoration-none">Carte</a>
+				                <a href="#" class="text-white text-decoration-none">Alliances</a>
+				                <a href="#" class="text-white text-decoration-none">Profil</a>
+				            </nav>
+				        </div>
+				    </header> #}
+			<div class="w3-black menu-top-height d-flex align-items-center justify-content-between"> 
+				<div>
+					<a href={{ path('app_home')}} class="w3-button">Ibei</a>
+				</div>
+				{# <a href={{ path('app_ranking')}} class="w3-bar-item w3-button">Classement</a> #}
+				<div>
+					<span class="">Jackpot minimum :
+						{{ myapp.getJackpot() | format_number }}
+						€
+						{% if myapp.getJackpotWonDate() %}
+							, remporté le {{ myapp.getJackpotWonDate() }}</span>
+						{% else %}
+							</span>
+						{% endif %}
+				</div>
+				<div class="mr-4">
+					{% if app.user %}
+						<span class="">Joueur :
+							{{user.getPseudo()}}</span>
+						<a class="" href={{ path('app_logout') }}>Se déconnecter</a>
+					{% else %}
+						<a class="" href={{ path('app_login') }}>Se connecter</a>
+						<a class="" href={{ path('app_register') }}>S'inscrire</a>
+					{% endif %}
+				</div>
+			</div>
+		{% if jackpot %}
+			
+			<div class="custom-modal custom-hide" id="modal-jackpot" tabindex="-1" role="dialog">
+				<div class="modal-dialog d-flex align-items-center justify-content-center" role="document">
+					<div class="modal-content">
+						{# <div>
+							<button type="button" class="close-modal-jackpot" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+							</button>
+						</div> #}
+						<div>
+							<p class="mt-2 text-center">Jackpot gagné</p>
+							<p class="text-center ml-4 mr-4">{{jackpot}}</p>
+						</div>
+						<div>
+							<p class="w3-center mb-2"><button id="close-modal-jackpot" type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
 
 		{# <div class="clear-flex"></div> #}
@@ -61,36 +89,38 @@
 			<!-- Menu latéral -->
 			{# <aside class="bg-primary p-4 shadow-lg col-12 col-lg-3"> #}
 				{% if app.user and app.user.nature %}
-					<aside class="p-4 shadow-lg col-2 text-black d-flex flex-column align-items-center justify-content-center custom-bg-{{ user.getNature() }} full-height-sidebar">
-                    {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
+					<aside
+					class="p-4 shadow-lg col-2 text-black d-flex flex-column align-items-center justify-content-center custom-bg-{{ user.getNature() }} full-height-sidebar"> {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
 					<p class="text-bold">Alignement
 						{{ user.getNature() | capitalize }}</p>
-                    <p class="text-center">{{ user.getDescription() }}</p>
-                    <p class="text-bold">Devise</p>
-					<p class="text-center">{{ user.getDevise() }}</p>
-					<p id="money"><span class="text-bold">Argent</span>
+					<p class="text-center">{{ user.getDescription() | capitalize }}</p>
+					<p class="text-bold">Devise</p>
+					<p class="text-center">{{ user.getDevise() | capitalize }}</p>
+					<p id="money">
+						<span class="text-bold">Argent</span>
 						{{ user.getMoney() | format_number}}
 						€</p>
-					<p id="exp"><span class="text-bold">Expérience</span>
+					<p id="exp">
+						<span class="text-bold">Expérience</span>
 						{{ user.getExp() | format_number}}</p>
 					<ul
 						class="list-unstyled">
 						{# <li><a href="#" class="text-white text-decoration-none d-block mb-2">🏰 Royaume</a></li> #}
-						 <li>
+						<li>
 							<a href="#" class="text-decoration-none d-block mb-2 text-bold">Etape 1</a>
 						</li>
 						{#<li>
-							<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
-						</li>
-						<li>
-							<a href="#" class="text-decoration-none d-block mb-2">⚙️ Améliorations</a>
-						</li>
-						<li>
-							<a href="#" class="text-decoration-none d-block mb-2">🛡️ Armée</a>
-						</li>
-						<li>
-							<a href="#" class="text-decoration-none d-block mb-2">📦 Stock</a>
-						</li> #}
+													<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
+												</li>
+												<li>
+													<a href="#" class="text-decoration-none d-block mb-2">⚙️ Améliorations</a>
+												</li>
+												<li>
+													<a href="#" class="text-decoration-none d-block mb-2">🛡️ Armée</a>
+												</li>
+												<li>
+													<a href="#" class="text-decoration-none d-block mb-2">📦 Stock</a>
+												</li> #}
 					</ul>
 				</aside>
 			{% endif %}
@@ -167,6 +197,30 @@
 		<!-- Scripts JS de Bootstrap -->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				{% if myapp.getJackpotWon() %}
+					$("#modal-jackpot").removeClass("custom-hide");
+					// remettre jackpot is_claimend à false
+				{% endif %}
+				$("#close-modal-jackpot").click(function () {
+					const $button = $(this);
+					// $("#modal-jackpot").addClass("custom-hide");
+					const url = '/app/reset-jackpot/' + '{{ token }}';
+					// Appel AJAX vers la route Symfony
+					$.ajax({
+						url: url,
+						method: 'GET', // ou POST selon ta route
+						success: function (response) {
+							$("#modal-jackpot").addClass("custom-hide");
+						},
+						error: function (err) {
+							console.error('Erreur AJAX :', err);
+						}
+					});
+				});
+			});
+		</script>
 		{% block script %}{% endblock %}
 		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 		<!--	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>  -->

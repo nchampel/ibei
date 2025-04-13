@@ -1,29 +1,31 @@
-{% extends 'basebootstrap.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Détermination de l'alignement
 {% endblock %}
 
 {% block body %}
-{{ form_start(form) }}
+<div class="col-12">
+    {{ form_start(form) }}
 
-<div id="questionnaire">
-    {% set total = form|length %}
-    {% for child in form %}
-        <div class="question-step" style="{% if not loop.first %}display: none;{% endif %}">
-            <div class="progress" style="margin-bottom: 10px;">
-                Question {{ loop.index }}/{{ total }}
+    <div id="questionnaire" >
+        {% set total = form|length %}
+        {% for child in form %}
+            <div class="question-step" style="{% if not loop.first %}display: none;{% endif %}">
+                <div class="progress custom-bg-app mb-2">
+                    Question {{ loop.index }}/{{ total - 1 }}
+                </div>
+                {{ form_row(child) }}
             </div>
-            {{ form_row(child) }}
-        </div>
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
 
-<div style="margin-top: 20px;">
-    <button type="button" id="nextBtn">Suivant</button>
-    <button type="submit" id="submitBtn" style="display: none;" class="btn">Envoyer</button>
-</div>
+    <div class="mt-2 w3-center">
+        <button type="button" id="nextBtn">Suivant</button>
+        <button type="submit" id="submitBtn" style="display: none;" class="btn">Envoyer</button>
+    </div>
 
-{{ form_end(form) }}
+    {{ form_end(form) }}
+</div>
 {% endblock %}
 
 {% block script %}

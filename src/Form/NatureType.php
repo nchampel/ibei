@@ -10,16 +10,28 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class NatureType extends AbstractType
 {
+    private function shuffle_assoc($list) {
+        if (!is_array($list)) return $list;
+    
+        $keys = array_keys($list);
+        shuffle($keys);
+    
+        $random = [];
+        foreach ($keys as $key) {
+            $random[$key] = $list[$key];
+        }
+        return $random;
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $choices1 = QuestionChoicesEnum::QUESTION1;
         $choices2 = QuestionChoicesEnum::QUESTION2;
         $choices3 = QuestionChoicesEnum::QUESTION3;
         $choices4 = QuestionChoicesEnum::QUESTION4;
-        shuffle($choices1);
-        shuffle($choices2);
-        shuffle($choices3);
-        shuffle($choices4);
+        $this->shuffle_assoc($choices1);
+        $this->shuffle_assoc($choices2);
+        $this->shuffle_assoc($choices3);
+        $this->shuffle_assoc($choices4);
         $builder
         ->add('question1', ChoiceType::class, [
                 'label' => 'Vous voyez un bébé chat.',

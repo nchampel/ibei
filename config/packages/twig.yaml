@@ -6,6 +6,7 @@ twig:
     globals:
         user: '@App\Services\UserService'
         myapp: '@App\Services\AppService'
+        token: '%env(APP_TOKEN_APP)%'
 
 when@test:
     twig:

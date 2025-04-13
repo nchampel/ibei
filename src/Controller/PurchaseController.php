@@ -9,6 +9,7 @@ use App\Repository\PotRepository;
 use App\Repository\ProductInfosRepository;
 use App\Repository\PurchaseRepository;
 use App\Repository\UserRepository;
+use App\Services\AppService;
 use App\Services\PurchaseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
 
 #[Route('/purchase')]
 class PurchaseController extends AbstractController
@@ -31,8 +33,8 @@ class PurchaseController extends AbstractController
     /**
      * @param \App\Entity\Purchase[] $purchasesBuyable
      */
-    #[Route('/', name: 'app_purchase_index', methods: ['GET'])]
-    public function index(PurchaseRepository $purchaseRepository): Response
+    #[Route('/all/{jackpot}', name: 'app_purchase_index', methods: ['GET'])]
+    public function index(PurchaseRepository $purchaseRepository, Environment $twig, $jackpot = null): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -69,7 +71,8 @@ class PurchaseController extends AbstractController
             'purchasesPossessed' => $purchasesPossessed,
             'userNotconnected' => $userNotConnected,
             'userConnected' => $userConnected,
-            'isPurchaseBuyable' => $isPurchaseBuyable
+            'isPurchaseBuyable' => $isPurchaseBuyable,
+            'jackpot' => $jackpot
         ]);
     }
 
@@ -118,7 +121,7 @@ class PurchaseController extends AbstractController
      * @param \App\Entity\User $user
      */
     #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
-    public function buy(Purchase $purchase, EntityManagerInterface $entityManager, PotRepository $potRepository): Response
+    public function buy(Purchase $purchase, EntityManagerInterface $entityManager, PotRepository $potRepository, AppService $appService): Response
     {
 
         /** @var \App\Entity\User $user */
@@ -142,6 +145,10 @@ class PurchaseController extends AbstractController
             $newPotGain = $potGain + round($price / 100);
             $pot->setGain($newPotGain);
             // gérer jackpot
+            $jackpotWon = $appService->winJackpot();
+            // if($jackpotWon){
+                
+            // }
             $entityManager->persist($user);
             $entityManager->persist($pot);
             $entityManager->persist($purchase);
@@ -150,7 +157,7 @@ class PurchaseController extends AbstractController
         } else {
             $this->addFlash('error', "Vous n'avez pas assez d'argent");
         }
-        return $this->redirectToRoute('app_purchase_index');
+        return $this->redirectToRoute('app_purchase_index', ['jackpot' => $jackpotWon]);
     }
 
     #[Route('/harvest/all/{id}', name: 'app_purchase_harvest_all')]

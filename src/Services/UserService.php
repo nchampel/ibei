@@ -75,11 +75,11 @@ class UserService
         $nature = $this->getNature();
         if ($nature) {
             $devises = [
-                "sotoc" => "Ca c'est plus fort que le roquefort",
-                "altheron" => "Il faut manger pour vivre, et non pas vivre pour manger",
-                "sora" => "Aujourd'hui, on a plus le droit, ni d'avoir faim ni d'avoir froid",
-                "flumia" => "Loués soient la Terre Mère et le Ciel Père",
-                "nano" => "Et voilà qui voilà inspecteur Gadget",
+                "sotoc" => "ça c'est plus fort que le roquefort",
+                "altheron" => "il faut manger pour vivre, et non pas vivre pour manger",
+                "sora" => "aujourd'hui, on a plus le droit, ni d'avoir faim ni d'avoir froid",
+                "flumia" => "loués soient la Terre Mère et le Ciel Père",
+                "nano" => "et voilà qui voilà inspecteur Gadget",
             ];
             return $devises[$nature];
         }
@@ -91,11 +91,11 @@ class UserService
         $nature = $this->getNature();
         if ($nature) {
             $descriptions = [
-                "sotoc" => "La confrérie des braves au summum de l'arrogance",
-                "altheron" => "Civilisation non violente à la limite du stoïcisme",
-                "sora" => "Peuple altruiste avec tendance à l'abnégation",
-                "flumia" => "La communauté des respectueux craintifs",
-                "nano" => "Tribu ingénieuse mais autiste",
+                "sotoc" => "la confrérie des braves au summum de l'arrogance",
+                "altheron" => "civilisation non violente à la limite du stoïcisme",
+                "sora" => "peuple altruiste avec tendance à l'abnégation",
+                "flumia" => "la communauté des respectueux craintifs",
+                "nano" => "tribu ingénieuse mais autiste",
             ];
             return $descriptions[$nature];
         }

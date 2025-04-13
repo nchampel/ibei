@@ -131,3 +131,19 @@
 .custom-footer {
     height: 40px; /* ou autre valeur correspondant à ton menu */
 }
+
+.custom-modal{
+	position: fixed;
+	top: 50%;
+	/* right: 0; */
+	left: 50%;
+	/* bottom: 0; */
+	transform: translate(-50%, -50%);
+	z-index: 1050;
+	overflow: hidden;
+	min-width: 20rem;
+	min-height: 20rem;
+}
+.custom-hide{
+	display: none;
+}
