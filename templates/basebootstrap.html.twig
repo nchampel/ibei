@@ -34,11 +34,11 @@
 				            </nav>
 				        </div>
 				    </header> #}
-			<div class="w3-black menu-top-height d-flex align-items-center justify-content-between"> 
+			<div class="w3-black menu-top-height d-flex align-items-center justify-content-between border-bottom border-light "> 
 				<div>
 					<a href={{ path('app_home')}} class="w3-button">Ibei</a>
 				</div>
-				{# <a href={{ path('app_ranking')}} class="w3-bar-item w3-button">Classement</a> #}
+				 {# <a href={{ path('app_ranking')}} class="w3-bar-item w3-button">Classement</a>  #}
 				<div>
 					<span class="">Jackpot minimum :
 						{{ myapp.getJackpot() | format_number }}
@@ -82,52 +82,57 @@
 			</div>
 		{% endif %}
 
-
+		<div style="min-height: 40px;"></div>
 		{# <div class="clear-flex"></div> #}
-		<div class="d-flex flex-column flex-lg-row row">
+		<div class="d-flex flex-row">
 
 			<!-- Menu latéral -->
 			{# <aside class="bg-primary p-4 shadow-lg col-12 col-lg-3"> #}
 				{% if app.user and app.user.nature %}
-					<aside
-					class="p-4 shadow-lg col-2 text-black d-flex flex-column align-items-center justify-content-center custom-bg-{{ user.getNature() }} full-height-sidebar"> {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
-					<p class="text-bold">Alignement
-						{{ user.getNature() | capitalize }}</p>
-					<p class="text-center">{{ user.getDescription() | capitalize }}</p>
-					<p class="text-bold">Devise</p>
-					<p class="text-center">{{ user.getDevise() | capitalize }}</p>
-					<p id="money">
-						<span class="text-bold">Argent</span>
-						{{ user.getMoney() | format_number}}
-						€</p>
-					<p id="exp">
-						<span class="text-bold">Expérience</span>
-						{{ user.getExp() | format_number}}</p>
-					<ul
-						class="list-unstyled">
-						{# <li><a href="#" class="text-white text-decoration-none d-block mb-2">🏰 Royaume</a></li> #}
-						<li>
-							<a href="#" class="text-decoration-none d-block mb-2 text-bold">Etape 1</a>
-						</li>
-						{#<li>
-													<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
-												</li>
-												<li>
-													<a href="#" class="text-decoration-none d-block mb-2">⚙️ Améliorations</a>
-												</li>
-												<li>
-													<a href="#" class="text-decoration-none d-block mb-2">🛡️ Armée</a>
-												</li>
-												<li>
-													<a href="#" class="text-decoration-none d-block mb-2">📦 Stock</a>
-												</li> #}
-					</ul>
+					<aside 
+					class="shadow-lg custom-bg-{{ user.getNature() }} full-height-sidebar custom-border-radius px-3 py-2"> {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
+					{#  #}
+					<div class="d-flex flex-column align-items-center justify-content-center h-100">
+					<div class="text-center p-2 custom-border-radius custom-bg-app">
+						<p class="text-bold color-{{ user.getNature() }}">Alignement
+							{{ user.getNature() | capitalize }}</p>
+						<p class="text-center text-white ">{{ user.getDescription() | capitalize }}</p>
+						<p class="text-bold text-white">Devise</p>
+						<p class="text-center text-white">{{ user.getDevise() | capitalize }}</p>
+						<p id="money" class="text-white">
+							<span class="text-bold">Argent</span>
+							{{ user.getMoney() | format_number}}
+							€</p>
+						<p id="exp" class="text-white">
+							<span class="text-bold">Expérience</span>
+							{{ user.getExp() | format_number}}</p>
+						<ul
+							class="list-unstyled">
+							{# <li><a href="#" class="text-white text-decoration-none d-block mb-2">🏰 Royaume</a></li> #}
+							<li>
+								<a href="#" class="text-decoration-none custom-border-radius pt-2 pb-2 px-5 mb-2 text-bold custom-bg-{{ user.getNature() }}">Etape 1</a>
+							</li>
+							{#<li>
+														<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
+													</li>
+													<li>
+														<a href="#" class="text-decoration-none d-block mb-2">⚙️ Améliorations</a>
+													</li>
+													<li>
+														<a href="#" class="text-decoration-none d-block mb-2">🛡️ Armée</a>
+													</li>
+													<li>
+														<a href="#" class="text-decoration-none d-block mb-2">📦 Stock</a>
+													</li> #}
+						</ul>
+					</div>
+					</div>
 				</aside>
 			{% endif %}
 
 			<!-- Contenu principal -->
 			{# <main class="col-12 col-lg-9 p-4 bg-dark"> #}
-			<main class="col-10 pl-4 border-top border-light">
+			<main class="flex-grow-1 container-fluid">
 				<div id="about" class="w3-container w3-padding-1 mb-4 text-white">
 					<h1 class="w3-center">Ibei</h1>
 					<p class="w3-center">Le jeu par navigateur aux multiples gameplays</p>
@@ -145,7 +150,7 @@
 						</div>
 					{% endfor %}
 				{% endfor %}
-				<div class="text-white">
+				<div class="text-white ml-2">
 					{% block body %}
 						<h1 class="fs-3 fw-bold mb-4 text-warning">Bienvenue, Seigneur des Terres du Nord</h1>
 
@@ -189,9 +194,9 @@
 				</div>
 			</main>
 		</div>
-		<footer class="custom-footer text-white text-center row">
-			<div class="col-2 custom-bg-{{ user.getNature()}}"></div>
-			<div class="col-10">Studio Zensaikeunde</div>
+		<footer class="custom-footer text-white text-center">
+			<div class="custom-bg-{{ user.getNature()}}"></div>
+			<div class="">Studio Zensaikeunde</div>
 		</footer>
 
 		<!-- Scripts JS de Bootstrap -->

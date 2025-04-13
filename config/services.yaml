@@ -26,5 +26,13 @@ services:
     App\Services\UserService:
         arguments:
             $tokenStorage: '@security.token_storage'
+
+    App\EventListener\LoginListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'Symfony\Component\Security\Http\Event\LoginSuccessEvent' }
+
+    App\EventListener\LoginFailureListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'Symfony\Component\Security\Http\Event\LoginFailureEvent' }
             
     

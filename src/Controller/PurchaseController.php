@@ -25,16 +25,18 @@ class PurchaseController extends AbstractController
 {
     private EntityManagerInterface $manager;
     private PurchaseService $purchaseService;
-    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService)
+    private $appService;
+    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService, AppService $appService)
     {
         $this->manager = $entityManager;
         $this->purchaseService = $purchaseService;
+        $this->appService = $appService;
     }
     /**
      * @param \App\Entity\Purchase[] $purchasesBuyable
      */
     #[Route('/all/{jackpot}', name: 'app_purchase_index', methods: ['GET'])]
-    public function index(PurchaseRepository $purchaseRepository, Environment $twig, $jackpot = null): Response
+    public function index(PurchaseRepository $purchaseRepository, $jackpot = null): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -106,6 +108,8 @@ class PurchaseController extends AbstractController
             $this->manager->persist($user);
             $this->manager->persist($purchase);
             $this->manager->flush();
+            $description = $purchase->getProduct()->getName() . " récolté, gain de " . $gain . " €, expérience " . $expPurchase . " points.";
+            $this->appService->createLog($description, $purchase->getId(), "produit", "récolte", $user);
             
             return new JsonResponse(['isClaimable' => true, 'money' => $newMoney, 'cooldown' => $purchase->getCooldown(),
                                        'exp' => $newExp,                       
@@ -146,13 +150,13 @@ class PurchaseController extends AbstractController
             $pot->setGain($newPotGain);
             // gérer jackpot
             $jackpotWon = $appService->winJackpot();
-            // if($jackpotWon){
-                
-            // }
             $entityManager->persist($user);
             $entityManager->persist($pot);
             $entityManager->persist($purchase);
             $entityManager->flush();
+
+            $description = $purchase->getProduct()->getName() . " acheté pour le prix de " . $price . " €. Argent restant : " . $user->getMoney() . " €";
+            $this->appService->createLog($description, $purchase->getId(), "produit", "achat", $user);
             $this->addFlash('success', "Vous avez acheté " . $purchase->getProduct()->getName());
         } else {
             $this->addFlash('error', "Vous n'avez pas assez d'argent");
@@ -167,7 +171,7 @@ class PurchaseController extends AbstractController
         if(!$user){
             return $this->redirectToRoute('app_login');
         }
-        $this->purchaseService->harvestProduct($user);
+        $this->purchaseService->harvestProduct($user, $this->appService, "récolte tous");
         return $this->redirectToRoute('app_purchase_index');
     }
 
@@ -183,7 +187,7 @@ class PurchaseController extends AbstractController
                 foreach($idles as $idle){
                     if($idle->getType() == 'récolte produits' && $idle->isActive()){
                         // à chaque user je fais un flush
-                        $this->purchaseService->harvestProduct($user);
+                        $this->purchaseService->harvestProduct($user, $this->appService, "récolte idle");
                     }
                 }
                 // $hasIdleActive = $idleRepository->findOneBy(['user' => $user, 'type' => 'récolte produits', 'active' => true]);

@@ -6,27 +6,8 @@
 {# @var purchasesBuyable \App\Entity\Purchase[] #}
 
 {% block body %}
-	{# <h1>Purchase index</h1> #}
 	
-	{# {% if app.user %}
-		<p id="money">Argent :
-			{{ app.user.money | format_number }}
-			€</p>
-		<p id="exp">Expérience :
-			{{ app.user.exp | format_number }}
-			</p>
-	{% endif %} #}
-	{# <table class="table">
-					        <thead>
-					            <tr>
-					                <th>Id</th>
-					                <th>Type</th>
-					                <th>ClaimedAt</th>
-					                <th>CreatedAt</th>
-					                <th>actions</th>
-					            </tr>
-					        </thead>
-					        <tbody> #}
+	
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item custom-relative">
 			<a class="nav-link {{ userNotconnected.nav }}" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">
@@ -42,19 +23,13 @@
 			<a class="nav-link {{ userConnected.nav }}" id="possessed-tab" data-bs-toggle="tab" href="#possessed" role="tab">Possédés</a>
 		</li>
 	</ul>
-	{% if app.user %}
-		<div class="d-flex align-items-center">
-			<p><a href={{ path('app_purchase_harvest_all', {id: app.user.id }) }} class="btn btn-primary mt-2">Tout récolter</a></p>
-			<p class="ml-2">Attention : Faire ceci vous octroiera moins d'expérience</p>
-		</div>
-		
-	{% endif %}
+	
 	<div class="tab-content mt-3" id="myTabContent">
 		<div class="tab-pane fade {{ userNotconnected.tab }}" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
-			<div class="d-flex flow-row">
+			<div class="d-flex flow-row justify-content-center">
 				{% for purchase in purchasesBuyable %}
 				<div
-						class="card m-3 box-shadow-custom custom-bg-card text-white" style="width: 18rem;">
+						class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius" style="width: 18rem;">
 						{% if app.user and app.user.money >= purchase.price %}
 							<span class="custom-badge-notif">
 							<span class="pulse-char">!</span>
@@ -94,9 +69,16 @@
 			{% endif %}
 		</div>
 		<div class="tab-pane fade {{ userConnected.tab }}" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
-			<div class="d-flex flow-row">
+			{% if app.user %}
+				<div class="d-flex align-items-center">
+					<p><a href={{ path('app_purchase_harvest_all', {id: app.user.id }) }} class="custom-btn custom-bg-orange mt-2">Tout récolter</a></p>
+					<p class="ml-2">Attention : Faire ceci vous octroiera moins d'expérience</p>
+				</div>
+				
+			{% endif %}
+			<div class="d-flex flow-row justify-content-center">
 				{% for purchase in purchasesPossessed %}
-					<div class="card m-3 box-shadow-custom custom-bg-card text-white" style="width: 18rem;">
+					<div class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius" style="width: 18rem;">
 						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
 						<div class="card-body">
 							<h5 class="card-title">{{ purchase.product.name }}</h5>
@@ -111,7 +93,7 @@
 							<div id="div-btn-harvest-{{ purchase.id }}" data-id={{ purchase.id }}>
 							{% if purchase.isClaimable %}
 								<button id="harvest-btn-{{ purchase.id }}" data-id={{ purchase.id }} data-url="{{ path('harvest', {id: purchase.id }) }}" 
-								class="btn btn-primary harvest-btn">Récolter</button>
+								class="btn custom-bg-parrot-green harvest-btn text-color-marine">Récolter</button>
 							{% else %}
 								<p id="remained-seconds-harvest-{{ purchase.id }}" data-id={{ purchase.id }}>{{ purchase.remainedSeconds | duration_format }}</p>
 							{% endif %}
@@ -156,7 +138,7 @@
 				} );
 			} );
 		} );
-		function startCountdown($button, $counter, duree) {
+		/*function startCountdown($button, $counter, duree) {
 			let tempsRestant = duree;
 
 			// $button.prop('disabled', true);
@@ -175,7 +157,34 @@
 				}
 			}, 1000);
 			
+		}*/
+		function startCountdown($button, $counter, cooldown) {
+			$button.hide(); // Masquer le bouton
+
+			const $bar = $('<div class="custom-cooldown-bar"></div>');
+			const $text = $('<div class="custom-cooldown-text"></div>');
+			const $container = $('<div class="custom-cooldown-wrapper"></div>').append($bar).append($text);
+
+			$counter.html($container); // Remplace le contenu par le visuel du cooldown
+
+			let timeLeft = cooldown;
+			const total = cooldown;
+
+			const interval = setInterval(() => {
+				timeLeft--;
+
+				let percent = ((total - timeLeft) / total) * 100;
+				$bar.css('width', percent + '%');
+				$text.text(timeLeft + 's');
+
+				if (timeLeft <= 0) {
+					clearInterval(interval);
+					// $counter.text('Disponible !');
+					$button.show();
+				}
+			}, 1000);
 		}
+
 		function formatTime(seconds) {
 			const hours = Math.floor(seconds / 3600);  // Nombre d'heures
 			const minutes = Math.floor((seconds % 3600) / 60);  // Nombre de minutes
@@ -235,7 +244,7 @@
 							id: 'harvest-btn-' + id,
 							'data-id': id,
 							'data-url': '/purchase/harvest/' + id,
-							class: 'btn btn-primary harvest-btn',
+							class: 'btn custom-bg-parrot-green harvest-btn text-color-marine',
 							text: 'Récolter'
 						});
 
