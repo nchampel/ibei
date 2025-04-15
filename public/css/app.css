@@ -1,0 +1,60 @@
+.custom-bg-app {
+    background-color: #000000;
+  }
+.box-shadow-custom {
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  .text-bold {
+    font-weight: bold;
+  }
+  .custom-space-between {
+    justify-content: space-between;
+  }
+  .custom-relative {
+    position: relative;
+  }
+  .custom-bg-orange {
+    background-color: #be6a25;
+  }
+  .menu-top-height {
+    height: 40px; /* ou autre valeur correspondant à ton menu */
+  }
+  .full-height-sidebar {
+    height: calc(
+      100vh - 40px - 40px - 40px
+    ); /* adapte selon la hauteur de ton header */
+    position: sticky;
+    top: 40px; /* même valeur que ton header */
+  }
+  .full-height-connexion {
+    height: calc(100vh - 40px); /* adapte selon la hauteur de ton header */
+    position: sticky;
+    top: 40px; /* même valeur que ton header */
+  }
+  .custom-border-radius {
+    border-radius: 12px;
+  }
+  
+  .custom-footer {
+    height: 40px; /* ou autre valeur correspondant à ton menu */
+  }
+  
+  .custom-modal {
+    position: fixed;
+    top: 50%;
+    /* right: 0; */
+    left: 50%;
+    /* bottom: 0; */
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    overflow: hidden;
+    min-width: 20rem;
+    min-height: 20rem;
+  }
+  .custom-hide {
+    display: none;
+  }
+  .text-color-white {
+    color: #fff;
+    /* color: #FFD700; */
+  }

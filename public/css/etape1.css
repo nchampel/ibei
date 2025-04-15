@@ -1,0 +1,138 @@
+@keyframes move-up-down {
+    0% {
+      transform: translateY(0); /* Position initiale */
+    }
+    25% {
+      transform: translateY(0); /* Position initiale */
+    }
+    50% {
+      transform: translateY(-4px); /* Monte de 4px */
+    }
+    /* 75% {
+          transform: translateY(-4px); /* S'arrête à 8px pendant 0.5s */
+    /* }  */
+    100% {
+      transform: translateY(0); /* Redescend à la position initiale */
+    }
+  }
+  .custom-badge-notif {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    transform: translate(50%, -50%);
+  
+    /* Fond rouge avec un léger dégradé */
+    background: linear-gradient(145deg, #ff3d00, #e60707) !important;
+    border: 2px solid yellow !important;
+    color: rgb(225, 255, 0) !important;
+    text-shadow: 1px 1px 0 #000;
+  
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+  
+    /* overflow: hidden; 👈 empêche le ! de sortir du carré */
+    z-index: 10;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.8) !important;
+  }
+  
+  .pulse-char {
+    display: inline-block;
+    /* animation: pulse-scale 1s infinite ease-in-out; */
+  
+    /* Animation de pulsation + montée/descente */
+    animation: move-up-down 2s infinite ease-in-out;
+    /* Contour textuel avec text-shadow noir */
+    /* text-shadow: 
+          2px 2px 3px rgba(30, 0, 255, 0.5),   
+          -2px -2px 3px rgba(30, 0, 255, 0.5),  
+          2px -2px 3px rgba(30, 0, 255, 0.5),   
+          -2px 2px 3px rgba(30, 0, 255, 0.5);   */
+  }
+  .custom-border{
+    border: 1px solid #00a26f;
+  }
+  .custom-shadow-buyable{
+    box-shadow:    /* ombre "portée", plus foncée */
+     3px 3px 3px 3px rgba(0,123,255, 0.5); /*lumière "réfléchie", plus claire */
+    /* 3px 3px 3px 3px #ff6961; lumière "réfléchie", plus claire */
+  }
+  .custom-shadow-possessed{
+    box-shadow:    /* ombre "portée", plus foncée */ 
+     3px 3px 3px 3px rgba(90,159,104, 0.5); /*lumière "réfléchie", plus claire */
+    /* 3px 3px 3px 3px #ff6961; lumière "réfléchie", plus claire */
+  }
+  .custom-shadow-harvest-all{
+    box-shadow:    /* ombre "portée", plus foncée */ 
+     1px 1px 1px 1px rgba(255, 255, 255, 0.803); /*lumière "réfléchie", plus claire */
+    /* 3px 3px 3px 3px #ff6961; lumière "réfléchie", plus claire */
+  }
+  .custom-shadow-buy-blue{
+    /* box-shadow:    
+     3px 3px 3px 3px rgba(9, 62, 133, 0.803);  */
+    /* 3px 3px 3px 3px #ff6961; lumière "réfléchie", plus claire */
+    /* box-shadow: 3px 3px 3px 3px #0056b3; */
+    /* box-shadow: 6px 6px 10px rgba(0, 86, 179, 0.9); */
+  }
+  .custom-bg-card {
+    background-color: #313742;
+  }
+  .custom-bg-parrot-green {
+    background-color: #5a9f68;
+  }
+
+  .custom-form-group {
+    display: flex;
+  }
+  
+.custom-cooldown-wrapper {
+    width: 100%;
+    max-width: 300px;
+    height: 30px;
+    background-color: #9d9292;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 10px;
+  }
+  
+  .custom-cooldown-bar {
+    height: 100%;
+    background: linear-gradient(to right, #4facfe, #00c6ff);
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 30px;
+    transition: width 1s linear;
+    width: 0%; /* Commence plein, diminue ensuite */
+  }
+  .custom-cooldown-bar-refresh {
+    height: 100%;
+    background: linear-gradient(to right, #4facfe, #00c6ff);
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 30px;
+    width: 0%; /* Commence plein, diminue ensuite */
+  }
+  
+  .custom-cooldown-text {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 100%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    color: white;
+    pointer-events: none;
+  }
