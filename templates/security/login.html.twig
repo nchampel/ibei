@@ -40,9 +40,11 @@
                         Se connecter
                     </button>
                 </div>
+                {% if myapp.getAppTest() != 'true' %}
                 <div class="d-flex justify-content-center">
                     <a href={{ path('app_register')}}>Inscription</a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </form>
