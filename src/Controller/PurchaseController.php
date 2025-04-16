@@ -38,7 +38,7 @@ class PurchaseController extends AbstractController
     #[Route('/all/{jackpot}', name: 'app_purchase_index', methods: ['GET'])]
     public function index(PurchaseRepository $purchaseRepository, $jackpot = null): Response
     {
-        /** @var User $user */
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $userConnected = ["tab" => "", "nav" => ""];
         $userNotConnected = ["tab" => "show active", "nav" => "active"];
@@ -55,6 +55,28 @@ class PurchaseController extends AbstractController
             }
             $userConnected = ["tab" => "show active", "nav" => "active"];
             $userNotConnected = ["tab" => "", "nav" => ""];
+            // on récupère la récompense journalière
+            /** @var \App\Entity\Ressource[] $ressources */
+            $ressources = $user->getRessources();
+            $now = new \DateTime();
+            if(is_null($ressources[0]->getClaimedAt()) || $ressources[0]->getClaimedAt()->format('Y-m-d') < (new \DateTime())->format('Y-m-d')){
+                foreach($ressources as $ressource){
+                    $type = $ressource->getType();
+                    $value = $ressource->getValue();
+                    switch($type){
+                        case 'lien-unité':
+                            $ressource->setValue($value + 500);
+                            break;
+                        case 'ticket':
+                            $ressource->setValue($value + 5);
+                            break;
+                    }
+                    $ressource->setClaimedAt($now);
+                }
+                $this->manager->flush();
+                $this->addFlash('success', "Vous avez obtenu la récompense journalière de 500 lien-unités et 5 tickets");
+            }
+
         }
         // $user = $userRepository->find($this->getUser());
         $purchasesBuyable = $purchaseRepository->findByUserNull(true);

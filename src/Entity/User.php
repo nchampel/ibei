@@ -62,12 +62,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Log::class)]
     private Collection $logs;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Ressource::class, orphanRemoval: true)]
+    private Collection $ressources;
+
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
         $this->natureAnswers = new ArrayCollection();
         $this->idles = new ArrayCollection();
         $this->logs = new ArrayCollection();
+        $this->ressources = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -252,6 +256,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getRessourceByType(string $type)
+{
+    foreach ($this->ressources as $ressource) {
+        if ($ressource->getType() === $type) {
+            return $ressource;
+        }
+    }
+
+}
+
     
     /**
      * @return Collection<int, Nature>
@@ -337,6 +351,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($log->getUser() === $this) {
                 $log->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ressource>
+     */
+    public function getRessources(): Collection
+    {
+        return $this->ressources;
+    }
+
+    public function addRessource(Ressource $ressource): static
+    {
+        if (!$this->ressources->contains($ressource)) {
+            $this->ressources->add($ressource);
+            $ressource->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRessource(Ressource $ressource): static
+    {
+        if ($this->ressources->removeElement($ressource)) {
+            // set the owning side to null (unless already changed)
+            if ($ressource->getUser() === $this) {
+                $ressource->setUser(null);
             }
         }
 

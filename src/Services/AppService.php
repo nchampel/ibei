@@ -80,5 +80,9 @@ class AppService
         $this->manager->persist($log);
         $this->manager->flush();
     }
+
+    public function getAppTest(){
+        return  $_ENV['APP_TEST'];
+    }
     
 }

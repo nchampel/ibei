@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Pot;
+use App\Entity\Ressource;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,6 +19,9 @@ class RegistrationController extends AbstractController
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
+        if($_ENV['APP_TEST'] == 'true'){
+            return $this->redirectToRoute('app_login');
+        }
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
@@ -34,11 +38,20 @@ class RegistrationController extends AbstractController
             $currentDate->setTimezone(new \DateTimeZone('Europe/Paris'));
             $user->setCreatedAt($currentDate);
             $user->setMoney(50);
+            $user->setExp(0);
             $pot = new Pot();
             $pot->setType("utilisateur");
             $pot->setUser($user);
             $pot->setGain(0);
             $pot->setIsClaimed(false);
+            $ressources = ['lien-unité', 'ticket'];
+            foreach($ressources as $ressourceType){
+                $resource = new Ressource();
+                $resource->setType($ressourceType);
+                $resource->setUser($user);
+                $resource->setValue(0);
+                $entityManager->persist($resource);
+            }
             $entityManager->persist($pot);            
             $entityManager->persist($user);
             $entityManager->flush();

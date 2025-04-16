@@ -70,6 +70,18 @@ class UserService
 
         return null;  // Si l'utilisateur n'est pas connecté, retourne null
     }
+    public function getResourceByType(string $type): ?int
+    {
+        $token = $this->tokenStorage->getToken();
+        if ($token && $token->getUser() instanceof UserInterface) {
+            /** @var \App\Entity\User $user */
+            $user = $token->getUser();
+            return $user->getRessourceByType($type)->getValue();
+        }
+
+        return null;  // Si l'utilisateur n'est pas connecté, retourne null
+    }
+    
     public function getDevise(): ?string
     {
         $nature = $this->getNature();

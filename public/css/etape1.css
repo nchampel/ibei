@@ -68,9 +68,9 @@
      3px 3px 3px 3px rgba(90,159,104, 0.5); /*lumière "réfléchie", plus claire */
     /* 3px 3px 3px 3px #ff6961; lumière "réfléchie", plus claire */
   }
-  .custom-shadow-harvest-all{
+  .custom-shadow-aside{
     box-shadow:    /* ombre "portée", plus foncée */ 
-     1px 1px 1px 1px rgba(255, 255, 255, 0.803); /*lumière "réfléchie", plus claire */
+     3px 3px 3px 3px rgba(255, 255, 255, 0.803); /*lumière "réfléchie", plus claire */
     /* 3px 3px 3px 3px #ff6961; lumière "réfléchie", plus claire */
   }
   .custom-shadow-buy-blue{

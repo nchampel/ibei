@@ -59,7 +59,10 @@
 						<a class="" href={{ path('app_logout') }}>Se déconnecter</a>
 					{% else %}
 						<a class="" href={{ path('app_login') }}>Se connecter</a>
-						<a class="" href={{ path('app_register') }}>S'inscrire</a>
+						{% if myapp.getAppTest() != 'true' %}
+							
+							<a class="" href={{ path('app_register') }}>S'inscrire</a>
+						{% endif %}
 					{% endif %}
 				</div>
 			</div>
@@ -93,42 +96,53 @@
 			{# <aside class="bg-primary p-4 shadow-lg col-12 col-lg-3"> #}
 				{% if app.user and app.user.nature %}
 					<aside 
-					class="shadow-lg custom-bg-{{ user.getNature() }} full-height-sidebar custom-border-radius px-3 py-2"> {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
+					class="shadow-lg custom-bg-{{ user.getNature() }} full-height-sidebar custom-border-radius px-3 py-2 custom-shadow-aside"> {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
 					{#  #}
 					<div class="d-flex flex-column align-items-center justify-content-center h-100">
-					<div class="text-center p-2 custom-border-radius custom-bg-app">
-						<p class="text-bold color-{{ user.getNature() }}">Alignement
-							{{ user.getNature() | capitalize }}</p>
-						<p class="text-center text-white ">{{ user.getDescription() | capitalize }}</p>
-						<p class="text-bold text-white">Devise</p>
-						<p class="text-center text-white">{{ user.getDevise() | capitalize }}</p>
-						<p id="money" class="text-white">
-							<span class="text-bold">Argent</span>
-							{{ user.getMoney() | format_number}}
-							€</p>
-						<p id="exp" class="text-white">
-							<span class="text-bold">Expérience</span>
-							{{ user.getExp() | format_number}}</p>
-						<ul
-							class="list-unstyled">
-							{# <li><a href="#" class="text-white text-decoration-none d-block mb-2">🏰 Royaume</a></li> #}
-							<li>
-								<a href="#" class="text-decoration-none custom-border-radius pt-2 pb-2 px-5 mb-2 text-bold custom-bg-{{ user.getNature() }}">Etape 1</a>
-							</li>
-							{#<li>
-														<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
-													</li>
-													<li>
-														<a href="#" class="text-decoration-none d-block mb-2">⚙️ Améliorations</a>
-													</li>
-													<li>
-														<a href="#" class="text-decoration-none d-block mb-2">🛡️ Armée</a>
-													</li>
-													<li>
-														<a href="#" class="text-decoration-none d-block mb-2">📦 Stock</a>
-													</li> #}
-						</ul>
-					</div>
+						<div class="text-center p-2 custom-border-radius custom-bg-app mb-4">
+							<p class="text-bold color-{{ user.getNature() }}">Alignement
+								{{ user.getNature() | capitalize }}</p>
+							<p class="text-center text-white ">{{ user.getDescription() | capitalize }}</p>
+							<p class="text-bold text-white">Devise</p>
+							<p class="text-center text-white">{{ user.getDevise() | capitalize }}</p>
+						</div>
+						<div class="text-center pb-2 pt-2 pl-4 pr-4 custom-border-radius custom-bg-app ">
+							<p class="text-white">
+								<span class="text-bold">{{user.getPseudo()}}</span>
+							</p>
+							<p id="money" class="text-white">
+								<span class="text-bold">Argent : </span>
+								{{ user.getMoney() | format_number}}
+								€</p>
+							<p id="exp" class="text-white">
+								<span class="text-bold">Expérience : </span>
+								{{ user.getExp() | format_number}}</p>
+							<p id="unity-link" class="text-white">
+								<span class="text-bold">Lien-unités : </span>
+								{{ user.getResourceByType('lien-unité') | format_number}}</p>
+							<p id="ticket" class="text-white pb-2">
+								<span class="text-bold">Tickets : </span>
+								{{ user.getResourceByType('ticket') | format_number}}</p>
+							<ul
+								class="list-unstyled">
+								{# <li><a href="#" class="text-white text-decoration-none d-block mb-2">🏰 Royaume</a></li> #}
+								<li>
+									<a href="#" class="text-decoration-none custom-border-radius pt-2 pb-2 px-5 mb-2 text-bold custom-bg-{{ user.getNature() }}">Etape 1</a>
+								</li>
+								{#<li>
+															<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
+														</li>
+														<li>
+															<a href="#" class="text-decoration-none d-block mb-2">⚙️ Améliorations</a>
+														</li>
+														<li>
+															<a href="#" class="text-decoration-none d-block mb-2">🛡️ Armée</a>
+														</li>
+														<li>
+															<a href="#" class="text-decoration-none d-block mb-2">📦 Stock</a>
+														</li> #}
+							</ul>
+						</div>
 					</div>
 				</aside>
 			{% endif %}
@@ -155,7 +169,7 @@
 				{% endfor %}
 				<div class="text-white ml-2">
 					{% block body %}
-						<h1 class="fs-3 fw-bold mb-4 text-warning">Bienvenue, Seigneur des Terres du Nord</h1>
+						{# <h1 class="fs-3 fw-bold mb-4 text-warning">Bienvenue, Seigneur des Terres du Nord</h1>
 
 						<!-- Grille des ressources -->
 						<div
@@ -192,7 +206,7 @@
 							<button class="btn btn-warning text-dark py-2 px-4 rounded shadow-sm">
 								Collecter les taxes 💰
 							</button>
-						</div>
+						</div> #}
 					{% endblock %}
 				</div>
 			</main>
