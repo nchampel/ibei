@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Nature;
 use App\Form\NatureChoicesType;
 use App\Form\NatureType;
+use App\Services\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,9 +14,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
+    private $appService;
+
+    public function __construct(AppService $appService){
+        $this->appService = $appService;
+    }
     #[Route('/determine/nature', name: 'app_user_determine_nature')]
     public function nature(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
         if (!$user) {
@@ -105,6 +114,9 @@ class UserController extends AbstractController
     #[Route('/determine/nature/choice', name: 'app_user_determine_nature_choices', methods: ['GET', 'POST'])]
     public function natures(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
         if (!$user) {

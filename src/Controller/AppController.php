@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\PotRepository;
+use App\Services\AppService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,15 +14,20 @@ use Symfony\Component\Routing\Annotation\Route;
 class AppController extends AbstractController
 {
     private EntityManagerInterface $manager;
+    private $appService;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, AppService $appService)
     {
         $this->manager = $entityManager;
+        $this->appService = $appService;
     }
 
     #[Route('/reset-jackpot/{token}', name: 'app_reset_jackpot')]
     public function resetJackpot(Request $request, PotRepository $repo, $token): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         $referer = $request->headers->get('referer');
         if($token == $_ENV['APP_TOKEN_APP']){
 
@@ -31,5 +37,10 @@ class AppController extends AbstractController
             $this->manager->flush();
         }
         return $this->redirect($referer);
+    }
+    #[Route('/maintenance', name: 'app_maintenance')]
+    public function maintenance(): Response
+    {
+        return $this->render('app/maintenance.html.twig');
     }
 }

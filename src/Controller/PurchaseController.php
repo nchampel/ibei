@@ -38,6 +38,9 @@ class PurchaseController extends AbstractController
     #[Route('/all/{jackpot}', name: 'app_purchase_index', methods: ['GET'])]
     public function index(PurchaseRepository $purchaseRepository, $jackpot = null): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $userConnected = ["tab" => "", "nav" => ""];
@@ -103,6 +106,9 @@ class PurchaseController extends AbstractController
     #[Route('/harvest/{id}', name: 'harvest')]
     public function harvest(Purchase $purchase)
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         $gain = $purchase->getGain();
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -149,7 +155,9 @@ class PurchaseController extends AbstractController
     #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
     public function buy(Purchase $purchase, EntityManagerInterface $entityManager, PotRepository $potRepository, AppService $appService): Response
     {
-
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         /** @var \App\Entity\User $user */
         // mettre logique d'achat avec vérification de la somme, et afficher le bouton acheter en twig que si on a la somme
         $user = $this->getUser();
@@ -189,6 +197,9 @@ class PurchaseController extends AbstractController
     #[Route('/harvest/all/{id}', name: 'app_purchase_harvest_all')]
     public function harvestAll($id, UserRepository $userRepository): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         $user = $userRepository->findOneBy(['id' => $id]);
         if(!$user){
             return $this->redirectToRoute('app_login');
@@ -200,6 +211,9 @@ class PurchaseController extends AbstractController
     #[Route('/harvest/all/idle/{token}', name: 'app_purchase_harvest_all_idle')]
     public function harvestAllIdle(string $token, UserRepository $userRepository): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         // à tester
         if ($token == $_ENV['APP_TOKEN']) {
             $users = $userRepository->findAll();
@@ -223,12 +237,14 @@ class PurchaseController extends AbstractController
 
     #[Route('/generate/{token}', name: 'app_purchases_generate', methods: ['GET'])]
     public function generate(
-        Request $request,
         string $token,
         EntityManagerInterface $entityManager,
         PurchaseRepository $purchaseRepository,
         ProductInfosRepository $productInfosRepository,
     ): Response {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         // tester http://localhost:8000/purchase/generate/abcde
         if ($token == $_ENV['APP_TOKEN']) {
             $productsBuyable = $purchaseRepository->findByUserNull(true);
@@ -261,6 +277,9 @@ class PurchaseController extends AbstractController
     #[Route('/new', name: 'app_purchase_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         // if (!$user) {
             return $this->redirectToRoute('app_purchase_index');
         // }
@@ -284,6 +303,9 @@ class PurchaseController extends AbstractController
     #[Route('/{id}', name: 'app_purchase_show', methods: ['GET'])]
     public function show(Purchase $purchase): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         return $this->redirectToRoute('app_purchase_index');
         return $this->render('purchase/show.html.twig', [
             'purchase' => $purchase,
@@ -293,6 +315,9 @@ class PurchaseController extends AbstractController
     #[Route('/{id}/edit', name: 'app_purchase_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         return $this->redirectToRoute('app_purchase_index');
         $form = $this->createForm(PurchaseType::class, $purchase);
         $form->handleRequest($request);
@@ -312,6 +337,9 @@ class PurchaseController extends AbstractController
     #[Route('/{id}', name: 'app_purchase_delete', methods: ['POST'])]
     public function delete(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
     {
+        if($this->appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         return $this->redirectToRoute('app_purchase_index');
         if ($this->isCsrfTokenValid('delete' . $purchase->getId(), $request->request->get('_token'))) {
             $entityManager->remove($purchase);

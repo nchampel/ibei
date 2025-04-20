@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Entity\Log;
 use App\Entity\User;
+use App\Repository\ConfigRepository;
 use App\Repository\LogRepository;
 use App\Repository\PotRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,14 +18,14 @@ class AppService
     private $jackpot;
     private $manager;
     private ?User $user;
-    private $logRepository;
+    private $configRepository;
 
-    public function __construct(PotRepository $potRepository, LogRepository $logRepository, EntityManagerInterface $manager, Security $security)
+    public function __construct(PotRepository $potRepository, ConfigRepository $configRepository, EntityManagerInterface $manager, Security $security)
     {
         $this->jackpot = $potRepository->findOneBy(['type' => 'jackpot']);
         $this->manager = $manager;
         $this->user = $security->getUser();
-        $this->logRepository = $logRepository;
+        $this->configRepository = $configRepository;
     }
 
     public function getJackpot(): int
@@ -83,6 +84,9 @@ class AppService
 
     public function getAppTest(){
         return  $_ENV['APP_TEST'];
+    }
+    public function getMaintenance(){
+        return  $this->configRepository->findOneBy(['name' => 'maintenance'])->getValue();
     }
     
 }

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Services\AppService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,8 +10,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class IndexController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(): Response
+    public function index(AppService $appService): Response
     {
+        if($appService->getMaintenance() == "true"){
+            return $this->redirectToRoute('app_maintenance');
+        }
         /** @var User $user */
         $user = $this->getUser();
         if($user){
