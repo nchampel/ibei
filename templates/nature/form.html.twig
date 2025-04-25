@@ -11,7 +11,7 @@
         {% set total = form|length %}
         {% for child in form %}
             <div class="question-step" style="{% if not loop.first %}display: none;{% endif %}">
-                <div class="progress custom-bg-app mb-2">
+                <div class="progress-c custom-bg-app mb-2">
                     Question {{ loop.index }}/{{ total - 1 }}
                 </div>
                 {{ form_row(child) }}

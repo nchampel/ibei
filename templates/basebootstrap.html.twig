@@ -24,7 +24,7 @@
 		{% endblock %}
 	</head>
 	{# <body class="bg-dark text-white font-serif"> #}
-	<body class="custom-bg-app font-serif d-flex flex-column">
+	<body class="custom-bg-app font-serif d-flex flex-column fw-600">
 
 		<!-- Barre du haut -->
 		{# <header class="bg-secondary shadow-sm">
@@ -88,7 +88,7 @@
 			</div>
 		{% endif %}
 
-		<div style="min-height: 40px;"></div>
+		<div style="min-height: 20px;"></div>
 		{# <div class="clear-flex"></div> #}
 		<div class="d-flex flex-row">
 
@@ -96,38 +96,41 @@
 			{# <aside class="bg-primary p-4 shadow-lg col-12 col-lg-3"> #}
 				{% if app.user and app.user.nature %}
 					<aside 
-					class="shadow-lg custom-bg-{{ user.getNature() }} full-height-sidebar custom-border-radius px-3 py-2 custom-shadow-aside"> {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
+					class="shadow-lg box-shadow-custom custom-bg-{{ user.getNature() }} full-height-sidebar custom-border-radius px-3 py-2"> {# <h2 class="fs-4 text-warning mb-4">📜</h2> #}
 					{#  #}
 					<div class="d-flex flex-column align-items-center justify-content-center h-100">
-						<div class="text-center p-2 custom-border-radius custom-bg-app mb-4">
-							<p class="text-bold color-{{ user.getNature() }}">Alignement
+						<div class="text-center box-shadow-custom  p-2 custom-border-radius custom-bg-white-light color-{{ user.getNature() }} mb-4">
+							<p class="fw-bold">Alignement
 								{{ user.getNature() | capitalize }}</p>
-							<p class="text-center text-white ">{{ user.getDescription() | capitalize }}</p>
-							<p class="text-bold text-white">Devise</p>
-							<p class="text-center text-white">{{ user.getDevise() | capitalize }}</p>
+							<p class="text-center">{{ user.getDescription() | capitalize }}</p>
+							<p class="fw-bold">Devise</p>
+							<p class="text-center">{{ user.getDevise() | capitalize }}</p>
 						</div>
-						<div class="text-center pb-2 pt-2 pl-4 pr-4 custom-border-radius custom-bg-app ">
-							<p class="text-white">
-								<span class="text-bold">{{user.getPseudo()}}</span>
+						<div class="text-center box-shadow-custom  pb-2 pt-2 pl-4 pr-4 custom-border-radius custom-bg-white-light color-{{ user.getNature() }}">
+							<p class="">
+								<span class="fw-bold">{{user.getPseudo()}}</span>
 							</p>
-							<p id="money" class="text-white">
-								<span class="text-bold">Argent : </span>
+							<p id="money" class="d-flex align-items-center justify-content-center">
+							<img src="{{ asset('images/euro ibei en cours 5.png') }}" alt="euro" class="icon icon-euro-side" />
+								{# <span class="text-bold">Argent : </span> #}
 								{{ user.getMoney() | format_number}}
 								€</p>
-							<p id="exp" class="text-white">
+							<p id="exp" class="">
 								<span class="text-bold">Expérience : </span>
 								{{ user.getExp() | format_number}}</p>
-							<p id="unity-link" class="text-white">
+							<p id="unity-link" class="">
 								<span class="text-bold">Lien-unités : </span>
 								{{ user.getResourceByType('lien-unité') | format_number}}</p>
-							<p id="ticket" class="text-white pb-2">
+							<p id="ticket" class=" pb-2">
 								<span class="text-bold">Tickets : </span>
 								{{ user.getResourceByType('ticket') | format_number}}</p>
 							<ul
 								class="list-unstyled">
 								{# <li><a href="#" class="text-white text-decoration-none d-block mb-2">🏰 Royaume</a></li> #}
-								<li>
-									<a href="#" class="text-decoration-none custom-border-radius pt-2 pb-2 px-5 mb-2 text-bold custom-bg-{{ user.getNature() }}">Etape 1</a>
+								<li class="text-black step-button">
+									{# <a href="#" class="box-shadow-custom text-decoration-none custom-border-radius pt-2 pb-2 px-5 mb-2 fw-bold custom-bg-{{ user.getNature() }} text-black">Etape 1</a> #}
+									<a href="#" class="text-black text-decoration-none custom-border-radius pt-2 pb-2 mb-2 
+									custom-nature-button custom-nature-button-{{ user.getNature() }}">Étape 1</a>
 								</li>
 								{#<li>
 															<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
@@ -150,7 +153,7 @@
 			<!-- Contenu principal -->
 			{# <main class="col-12 col-lg-9 p-4 bg-dark"> #}
 			<main class="flex-grow-1 container-fluid">
-				<div id="about" class="w3-container w3-padding-1 mb-4 text-white">
+				<div id="about" class="w3-container w3-padding-1 mb-4">
 					<h1 class="w3-center">Ibei</h1>
 					<p class="w3-center">Le jeu par navigateur aux multiples gameplays</p>
 				</div>
@@ -167,7 +170,7 @@
 						</div>
 					{% endfor %}
 				{% endfor %}
-				<div class="text-white ml-2">
+				<div class="ml-2">
 					{% block body %}
 						{# <h1 class="fs-3 fw-bold mb-4 text-warning">Bienvenue, Seigneur des Terres du Nord</h1>
 
@@ -211,9 +214,9 @@
 				</div>
 			</main>
 		</div>
-		<footer class="custom-footer text-white text-center">
-			<div class="custom-bg-{{ user.getNature()}}"></div>
-			<div class="">Studio Zensaikeunde</div>
+		<div style="min-height: 20px;"></div>
+		<footer class="custom-footer w3-black d-flex align-items-center justify-content-center">
+			<div class="">2025 - Studio Zensaikeunde</div>
 		</footer>
 
 		<!-- Scripts JS de Bootstrap -->

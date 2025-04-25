@@ -9,8 +9,8 @@
 
 
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
-		<li class="nav-item custom-relative">
-			<a class="nav-link {{ userNotconnected.nav }}" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">
+		<li class="nav-item">
+			<a class="nav-link custom-relative {{ userNotconnected.nav }}" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">
 				En vente
 				{% if isPurchaseBuyable %}
 					<span class="custom-badge-notif">
@@ -24,17 +24,16 @@
 		</li>
 	</ul>
 
-	<div class="tab-content mt-3" id="myTabContent">
+	<div class="tab-content mt-5" id="myTabContent">
 		<div class="tab-pane fade {{ userNotconnected.tab }}" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
 			<div class="d-flex flow-row justify-content-center">
 				{% for purchase in purchasesBuyable %}
-					<div class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius custom-shadow-buyable" style="width: 18rem;">
+					{# <div class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius custom-shadow-buyable" style="width: 18rem;">
 						{% if app.user and app.user.money >= purchase.price %}
 							<span class="custom-badge-notif">
 								<span class="pulse-char">!</span>
 							</span>
 						{% endif %}
-						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
 						<div class="card-body m-2 bg-gray-800 p-4 rounded-lg shadow-md">
 							<h5 class="card-title">{{ purchase.product.name }}</h5>
 							<p class="card-text">{{ purchase.product.description }}</p>
@@ -50,6 +49,36 @@
 								<a href={{ path('app_purchase_buy', {'id': purchase.id} )}} class="btn btn-primary">Acheter</a>
 							{% endif %}
 						</div>
+					</div> #}
+					<div class="harvest-card mr-4 mb-4">
+						<h5 class="card-title fw-600">{{ purchase.product.name }}</h5>
+						<div class="timer text-white">{{ purchase.cooldown | duration_format }}</div>
+						<div class="item-icon">🥕</div>
+						<div class="price p-2">
+							<div class="coin d-flex align-items-center justify-content-center">
+								<img src="{{ asset('images/euro ibei en cours 5.png') }}" alt="euro" class="icon icon-euro" />
+								<span class="value">
+									{{ purchase.price | format_number }}
+									€</span>
+							</div>
+						</div>
+							{% if app.user and user.getMoney() >= purchase.price %}
+							<div class="mt-4 buy-button animate-button-harvest">
+								<a href={{ path('app_purchase_buy', {'id': purchase.id} )}} class="">Acheter</a>
+							</div>
+							{% elseif app.user and user.getMoney() < purchase.price %}
+								<p class="mt-4 no-money">Manquant : {{ (purchase.price - user.getMoney()) | format_number }} €</p>
+							{% endif %}
+						<div class="gain p-2">
+							<div class="coin d-flex align-items-center justify-content-center">
+								<img src="{{ asset('images/euro ibei en cours 5.png') }}" alt="euro" class="icon icon-euro" />
+								<span class="value">+ {{ purchase.gain | format_number }} €</span>
+							</div>
+							{# <div class="xp d-flex align-items-center justify-content-center">
+								<img src="{{ asset('images/étoile ibei en cours 4.png') }}" alt="expérience" class="icon icon-star" />
+								<span class="value">Niv. 3</span>
+							</div> #}
+						</div>
 					</div>
 				{% endfor %}
 			</div>
@@ -59,19 +88,19 @@
 		</div>
 		<div class="tab-pane fade {{ userConnected.tab }}" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
 			{% if app.user %}
-				<div class="d-flex align-items-center">
+				<div class="text-center">
 					<p>
-						<a href={{ path('app_purchase_harvest_all', {id: app.user.id } ) }} class="custom-btn custom-bg-orange mt-2">Tout récolter</a>
+						<a href={{ path('app_purchase_harvest_all', {id: app.user.id } ) }}>Tout récolter</a>
 					</p>
-					<p class="ml-2">Attention : Faire ceci vous octroiera moins d'expérience</p>
+					<p class="mt-4">Attention : Faire ceci vous octroiera moins d'expérience</p>
 				</div>
 
 			{% endif %}
-			<div class="d-flex flow-row justify-content-center">
+			<div class="d-flex flow-row justify-content-center align-items-center">
 				{% for purchase in purchasesPossessed %}
-					<div
+					{# <div
 						class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius custom-shadow-possessed" style="width: 18rem;">
-						{# <img class="card-img-top" src="..." alt="Card image cap"> #}
+						
 						<div class="card-body">
 							<h5 class="card-title">{{ purchase.product.name }}</h5>
 							<p class="card-text">{{ purchase.product.description }}</p>
@@ -81,7 +110,7 @@
 							<p class="card-text">Cooldown :
 								{{ purchase.cooldown | duration_format }}</p>
 							<span id="compteur-harvest-{{ purchase.id }}" data-id={{ purchase.id }} class="ml-2"></span>
-							{# <a id="harvest-{{ purchase.id }}" href={{ path('harvest', {id: purchase.id } ) }} class="btn btn-primary">Récolter</a> #}
+							
 							<div id="div-btn-harvest-{{ purchase.id }}" data-id={{ purchase.id }}>
 								{% if purchase.isClaimable %}
 									<button id="harvest-btn-{{ purchase.id }}" data-id={{ purchase.id }}
@@ -91,6 +120,33 @@
 									<p id="remained-seconds-harvest-{{ purchase.id }}" data-id={{ purchase.id }} data-cooldown={{ purchase.cooldown }}>{{ purchase.remainedSeconds | duration_format }}</p>
 								{% endif %}
 							</div>
+						</div>
+					</div> #}
+					<div class="harvest-card mr-4 mb-4">
+						<h5 class="fw-600 card-title">{{ purchase.product.name }}</h5>
+						<div class="timer text-white">{{ purchase.cooldown | duration_format }}</div>
+						<div class="item-icon">🥕</div>
+						<span id="compteur-harvest-{{ purchase.id }}" data-id={{ purchase.id }} class="ml-2"></span>
+						<div id="div-btn-harvest-{{ purchase.id }}" data-id={{ purchase.id }}>
+									{% if purchase.isClaimable %}
+							<button id="harvest-btn-{{ purchase.id }}" data-id={{ purchase.id }}
+									data-url="{{ path('harvest', {id: purchase.id }) }}" class="harvest-button animate-button-harvest harvest-btn">Récolter</button>
+							{% else %}
+								<p class="fw-600" id="remained-seconds-harvest-{{ purchase.id }}" data-id={{ purchase.id }} data-cooldown={{ purchase.cooldown }}>{{ purchase.remainedSeconds | duration_format }}</p>
+							{% endif %}
+						</div>
+						<div class="stats p-2">
+							<div class="coin d-flex align-items-center justify-content-center">
+								<img src="{{ asset('images/euro ibei en cours 5.png') }}" alt="euro" class="icon icon-euro" />
+								<span class="value">{{ purchase.gain | format_number }} €</span>
+							</div>
+							<div class="xp d-flex align-items-center justify-content-center">
+								<img src="{{ asset('images/étoile ibei en cours 4.png') }}" alt="expérience" class="icon icon-star" />
+								<span class="value">Niv. 3</span>
+							</div>
+						</div>
+						<div class="xp-bar mt-2">
+							<div class="progress" style="width: 60%;"></div>
 						</div>
 					</div>
 				{% endfor %}
@@ -158,7 +214,7 @@ function startCountdown( $button, $counter, cooldown ) {
 			clearInterval( interval );
 			// $counter.text('Disponible !');
 			$button.show();
-			$counter.hide();
+			$counter.text('');
 		}
 	}, 1000 );
 }
@@ -227,18 +283,18 @@ $( document ).ready( function () {
 					id: 'harvest-btn-' + id,
 					'data-id': id,
 					'data-url': '/purchase/harvest/' + id,
-					class: 'btn custom-bg-parrot-green harvest-btn text-color-white',
+					class: 'btn custom-bg-parrot-green harvest-btn harvest-button text-color-white',
 					text: 'Récolter'
 				} );
 
 				$button.on( 'click', function () {
 					const $button = $( this );
-					$button.hide();
+					// $button.hide();
 					const id = $button.data( 'id' );
 					const url = $button.data( 'url' );
 					const $counter = $( '#compteur-harvest-' + id );
 					// console.log('#compteur-' + id);
-					$counter.text( "Récupération de l'argent" );
+					$counter.addClass("fw-600").text( "Récupération de l'argent" );
 
 
 					// Appel AJAX vers la route Symfony
@@ -341,7 +397,7 @@ $( document ).ready( function () {
 		const url = $button.data( 'url' );
 		const $counter = $( '#compteur-harvest-' + id );
 		// console.log('#compteur-' + id);
-		$counter.text( "Récupération de l'argent" );
+		$counter.addClass("fw-600").text( "Récupération de l'argent" );
 
 
 		// Appel AJAX vers la route Symfony

@@ -1,6 +1,6 @@
 
 .custom-bg-sora {
-    background-color: #ffe808;
+    background-color: #FFB300;
   }
   .custom-bg-sotoc {
     background-color: #ff6961;
@@ -16,7 +16,7 @@
     color: #00a26f;
   }
   .color-sora {
-    color: #ffe808;
+    color: #FFB300;
   }
   .color-nano {
     color: #aa81d5;
@@ -32,4 +32,39 @@
   }
   .custom-bg-altheron {
     background-color: #0ca4ff;
+  }
+  .custom-nature-button{
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    /* font-size: 20rem; */
+    padding: 0.6rem 1.5rem;
+    border: none;
+    /* font-size: 1.1rem; */
+    max-width: 140px;
+  }
+  .custom-nature-button-nano{
+    background-color: #aa81d5;
+    box-shadow: 0 4px 0 #8932e5, /* ombre en bas */ -2px 2px 0 #8932e5,
+    /* ombre à gauche */ 2px 2px 0 #8932e5; /* ombre à droite */
+  }
+  .custom-nature-button-sora{
+    background-color: #FFB300;
+    box-shadow: 0 4px 0 #ff9100, /* ombre en bas */ -2px 2px 0 #ff9100,
+    /* ombre à gauche */ 2px 2px 0 #ff9100; /* ombre à droite */
+  }
+  .custom-nature-button-flumia{
+    background-color: #00a26f;
+    box-shadow: 0 4px 0 #006747, /* ombre en bas */ -2px 2px 0 #006747,
+    /* ombre à gauche */ 2px 2px 0 #006747; /* ombre à droite */
+  }
+  .custom-nature-button-altheron{
+    background-color: #0ca4ff;
+    box-shadow: 0 4px 0 #007dc6, /* ombre en bas */ -2px 2px 0 #007dc6,
+    /* ombre à gauche */ 2px 2px 0 #007dc6; /* ombre à droite */
+  }
+  .custom-nature-button-sotoc{
+    background-color: #ff6961;
+    box-shadow: 0 4px 0 #f43b31, /* ombre en bas */ -2px 2px 0 #f43b31,
+    /* ombre à gauche */ 2px 2px 0 #f43b31; /* ombre à droite */
   }
