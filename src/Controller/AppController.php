@@ -41,6 +41,9 @@ class AppController extends AbstractController
     #[Route('/maintenance', name: 'app_maintenance')]
     public function maintenance(): Response
     {
+        if($this->appService->getMaintenance() != "true"){
+            return $this->redirectToRoute("app_purchase_index");
+        }
         return $this->render('app/maintenance.html.twig');
     }
 }

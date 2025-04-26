@@ -1,28 +1,28 @@
 
+.border-sotoc{
+  border: 1px solid #ff6961;
+}
+.color-sotoc {
+  color: #ff6961;
+}
+.color-flumia {
+  /* color: #6fd984; */
+  color: #00a26f;
+}
+.color-sora {
+  color: #FFB300;
+}
+.color-nano {
+  color: #aa81d5;
+}
+.color-altheron {
+  color: #0ca4ff;
+}
 .custom-bg-sora {
     background-color: #FFB300;
   }
   .custom-bg-sotoc {
     background-color: #ff6961;
-  }
-  .border-sotoc{
-    border: 1px solid #ff6961;
-  }
-  .color-sotoc {
-    color: #ff6961;
-  }
-  .color-flumia {
-    /* color: #6fd984; */
-    color: #00a26f;
-  }
-  .color-sora {
-    color: #FFB300;
-  }
-  .color-nano {
-    color: #aa81d5;
-  }
-  .color-altheron {
-    color: #0ca4ff;
   }
   .custom-bg-flumia {
     background-color: #00a26f;
