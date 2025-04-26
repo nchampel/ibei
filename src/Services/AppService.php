@@ -85,8 +85,8 @@ class AppService
     public function getAppTest(){
         return  $_ENV['APP_TEST'];
     }
-    public function getMaintenance(){
-        return  $this->configRepository->findOneBy(['name' => 'maintenance'])->getValue();
+    public function getConfig($type){
+        return  $this->configRepository->findOneBy(['name' => $type])->getValue();
     }
     
 }

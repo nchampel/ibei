@@ -25,11 +25,11 @@ class AppController extends AbstractController
     #[Route('/reset-jackpot/{token}', name: 'app_reset_jackpot')]
     public function resetJackpot(Request $request, PotRepository $repo, $token): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         $referer = $request->headers->get('referer');
-        if($token == $_ENV['APP_TOKEN_APP']){
+        if ($token == $_ENV['APP_TOKEN_APP']) {
 
             $jackpot = $repo->findOneBy(['type' => 'jackpot']);
             $jackpot->setIsClaimed(false);
@@ -41,7 +41,7 @@ class AppController extends AbstractController
     #[Route('/maintenance', name: 'app_maintenance')]
     public function maintenance(): Response
     {
-        if($this->appService->getMaintenance() != "true"){
+        if ($this->appService->getConfig('maintenance') != "true") {
             return $this->redirectToRoute("app_purchase_index");
         }
         return $this->render('app/maintenance.html.twig');

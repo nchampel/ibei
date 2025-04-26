@@ -59,7 +59,7 @@
 						<a class="" href={{ path('app_logout') }}>Se déconnecter</a>
 					{% else %}
 						<a class="" href={{ path('app_login') }}>Se connecter</a>
-						{% if myapp.getAppTest() != 'true' %}
+						{% if myapp.getConfig('test') != 'true' %}
 							
 							<a class="" href={{ path('app_register') }}>S'inscrire</a>
 						{% endif %}

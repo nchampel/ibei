@@ -38,7 +38,7 @@ class PurchaseController extends AbstractController
     #[Route('/all/{jackpot}', name: 'app_purchase_index', methods: ['GET'])]
     public function index(PurchaseRepository $purchaseRepository, $jackpot = null): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         /** @var \App\Entity\User $user */
@@ -47,12 +47,12 @@ class PurchaseController extends AbstractController
         $userNotConnected = ["tab" => "show active", "nav" => "active"];
         $purchasesPossessed = [];
         if ($user) {
-            if(!$user->getNature()){
+            if (!$user->getNature()) {
                 return $this->redirectToRoute('app_user_determine_nature');
             }
             $purchasesPossessed = $purchaseRepository->findByUserNull(false, $user->getId());
             // on rajoute l'aspect claimable ou pas
-            foreach($purchasesPossessed as $purchaseP){
+            foreach ($purchasesPossessed as $purchaseP) {
                 $purchaseP->updateIsClaimable();
                 $purchaseP->updateRemainedSeconds();
             }
@@ -62,11 +62,11 @@ class PurchaseController extends AbstractController
             /** @var \App\Entity\Ressource[] $ressources */
             $ressources = $user->getRessources();
             $now = new \DateTime();
-            if(is_null($ressources[0]->getClaimedAt()) || $ressources[0]->getClaimedAt()->format('Y-m-d') < (new \DateTime())->format('Y-m-d')){
-                foreach($ressources as $ressource){
+            if (is_null($ressources[0]->getClaimedAt()) || $ressources[0]->getClaimedAt()->format('Y-m-d') < (new \DateTime())->format('Y-m-d')) {
+                foreach ($ressources as $ressource) {
                     $type = $ressource->getType();
                     $value = $ressource->getValue();
-                    switch($type){
+                    switch ($type) {
                         case 'lien-unité':
                             $ressource->setValue($value + 500);
                             break;
@@ -79,15 +79,14 @@ class PurchaseController extends AbstractController
                 $this->manager->flush();
                 $this->addFlash('success', "Vous avez obtenu la récompense journalière de 500 lien-unités et 5 tickets");
             }
-
         }
         // $user = $userRepository->find($this->getUser());
         $purchasesBuyable = $purchaseRepository->findByUserNull(true);
         // regarder si les objets achetables peuvent être achetés
         $isPurchaseBuyable = false;
         // $purchasesBuyable = $purchaseRepository->findByUserNull(true);
-        foreach($purchasesBuyable as $purchase){
-            if($user && $purchase->getPrice() <= $user->getMoney()){
+        foreach ($purchasesBuyable as $purchase) {
+            if ($user && $purchase->getPrice() <= $user->getMoney()) {
                 $isPurchaseBuyable = true;
             }
         }
@@ -106,7 +105,7 @@ class PurchaseController extends AbstractController
     #[Route('/harvest/{id}', name: 'harvest')]
     public function harvest(Purchase $purchase)
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         $gain = $purchase->getGain();
@@ -115,15 +114,14 @@ class PurchaseController extends AbstractController
         if (!$user) {
             return $this->redirectToRoute('app_purchase_index');
         }
-        if(!$user->getNature()){
+        if (!$user->getNature()) {
             return $this->redirectToRoute('app_user_determine_nature');
         }
         $money = $user->getMoney();
 
         $isClaimable = $purchase->getIsClaimable();
-        if(!$isClaimable){
-                return new JsonResponse(['isClaimable' => false, 'money' => $money, 'cooldown' => $purchase->getCooldown()]);
-            
+        if (!$isClaimable) {
+            return new JsonResponse(['isClaimable' => false, 'money' => $money, 'cooldown' => $purchase->getCooldown()]);
         } else {
             $newMoney = $money + $gain;
             $user->setMoney($newMoney);
@@ -138,13 +136,16 @@ class PurchaseController extends AbstractController
             $this->manager->flush();
             $description = $purchase->getProduct()->getName() . " récolté, gain de " . $gain . " €, expérience " . $expPurchase . " points.";
             $this->appService->createLog($description, $purchase->getId(), "produit", "récolte", $user);
-            
-            return new JsonResponse(['isClaimable' => true, 'money' => $newMoney, 'cooldown' => $purchase->getCooldown(),
-                                       'exp' => $newExp,                       
-        ]);
+
+            return new JsonResponse([
+                'isClaimable' => true,
+                'money' => $newMoney,
+                'cooldown' => $purchase->getCooldown(),
+                'exp' => $newExp,
+            ]);
         }
-       
-        
+
+
         // return $this->redirectToRoute('app_purchase_index');
     }
 
@@ -155,7 +156,7 @@ class PurchaseController extends AbstractController
     #[Route('/buy/{id}', name: 'app_purchase_buy', methods: ['GET'])]
     public function buy(Purchase $purchase, EntityManagerInterface $entityManager, PotRepository $potRepository, AppService $appService): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         /** @var \App\Entity\User $user */
@@ -164,7 +165,7 @@ class PurchaseController extends AbstractController
         if (!$user) {
             return $this->redirectToRoute('app_purchase_index');
         }
-        if(!$user->getNature()){
+        if (!$user->getNature()) {
             return $this->redirectToRoute('app_user_determine_nature');
         }
         // $user = $userRepository->find($security->getUser());
@@ -197,11 +198,11 @@ class PurchaseController extends AbstractController
     #[Route('/harvest/all/{id}', name: 'app_purchase_harvest_all')]
     public function harvestAll($id, UserRepository $userRepository): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         $user = $userRepository->findOneBy(['id' => $id]);
-        if(!$user){
+        if (!$user) {
             return $this->redirectToRoute('app_login');
         }
         $this->purchaseService->harvestProduct($user, $this->appService, "récolte tous");
@@ -211,17 +212,17 @@ class PurchaseController extends AbstractController
     #[Route('/harvest/all/idle/{token}', name: 'app_purchase_harvest_all_idle')]
     public function harvestAllIdle(string $token, UserRepository $userRepository): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         // à tester
         if ($token == $_ENV['APP_TOKEN']) {
             $users = $userRepository->findAll();
             // à optimiser
-            foreach($users as $user){
+            foreach ($users as $user) {
                 $idles = $user->getIdles();
-                foreach($idles as $idle){
-                    if($idle->getType() == 'récolte produits' && $idle->isActive()){
+                foreach ($idles as $idle) {
+                    if ($idle->getType() == 'récolte produits' && $idle->isActive()) {
                         // à chaque user je fais un flush
                         $this->purchaseService->harvestProduct($user, $this->appService, "récolte idle");
                     }
@@ -230,7 +231,6 @@ class PurchaseController extends AbstractController
                 // if($hasIdleActive){
                 // }
             }
-            
         }
         return $this->redirectToRoute('app_purchase_index');
     }
@@ -242,7 +242,7 @@ class PurchaseController extends AbstractController
         PurchaseRepository $purchaseRepository,
         ProductInfosRepository $productInfosRepository,
     ): Response {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         // tester http://localhost:8000/purchase/generate/abcde
@@ -273,15 +273,15 @@ class PurchaseController extends AbstractController
 
         return $this->redirectToRoute('app_purchase_index');
     }
-    
+
     #[Route('/new', name: 'app_purchase_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         // if (!$user) {
-            return $this->redirectToRoute('app_purchase_index');
+        return $this->redirectToRoute('app_purchase_index');
         // }
         $purchase = new Purchase();
         $form = $this->createForm(PurchaseType::class, $purchase);
@@ -303,7 +303,7 @@ class PurchaseController extends AbstractController
     #[Route('/{id}', name: 'app_purchase_show', methods: ['GET'])]
     public function show(Purchase $purchase): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         return $this->redirectToRoute('app_purchase_index');
@@ -315,7 +315,7 @@ class PurchaseController extends AbstractController
     #[Route('/{id}/edit', name: 'app_purchase_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         return $this->redirectToRoute('app_purchase_index');
@@ -337,7 +337,7 @@ class PurchaseController extends AbstractController
     #[Route('/{id}', name: 'app_purchase_delete', methods: ['POST'])]
     public function delete(Request $request, Purchase $purchase, EntityManagerInterface $entityManager): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         return $this->redirectToRoute('app_purchase_index');
@@ -348,6 +348,4 @@ class PurchaseController extends AbstractController
 
         return $this->redirectToRoute('app_purchase_index', [], Response::HTTP_SEE_OTHER);
     }
-
-    
 }

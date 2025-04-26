@@ -18,13 +18,16 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, 
-    EntityManagerInterface $entityManager, AppService $appService): Response
-    {
-        if($appService->getMaintenance() == "true"){
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager,
+        AppService $appService
+    ): Response {
+        if ($appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
-        if($_ENV['APP_TEST'] == 'true'){
+        if ($_ENV['APP_TEST'] == 'true') {
             return $this->redirectToRoute('app_login');
         }
         $user = new User();
@@ -50,14 +53,14 @@ class RegistrationController extends AbstractController
             $pot->setGain(0);
             $pot->setIsClaimed(false);
             $ressources = ['lien-unité', 'ticket'];
-            foreach($ressources as $ressourceType){
+            foreach ($ressources as $ressourceType) {
                 $resource = new Ressource();
                 $resource->setType($ressourceType);
                 $resource->setUser($user);
                 $resource->setValue(0);
                 $entityManager->persist($resource);
             }
-            $entityManager->persist($pot);            
+            $entityManager->persist($pot);
             $entityManager->persist($user);
             $entityManager->flush();
             // do anything else you need here, like send an email
@@ -70,5 +73,4 @@ class RegistrationController extends AbstractController
             'registrationForm' => $form->createView(),
         ]);
     }
-    
 }

@@ -12,13 +12,14 @@ class SecurityController extends AbstractController
 {
     private $appService;
 
-    public function __construct(AppService $appService){
+    public function __construct(AppService $appService)
+    {
         $this->appService = $appService;
     }
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        if($this->appService->getMaintenance() == "true"){
+        if ($this->appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
         // get the login error if there is one
