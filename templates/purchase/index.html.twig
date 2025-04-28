@@ -90,7 +90,7 @@
 			{% if app.user %}
 				<div class="text-center">
 					<p>
-						<a href={{ path('app_purchase_harvest_all', {id: app.user.id } ) }}>Tout récolter</a>
+						<a id="harvest-all-link" href={{ path('app_purchase_harvest_all', {id: app.user.id } ) }}>Tout récolter</a>
 					</p>
 					<p class="mt-4">Attention : Faire ceci vous octroiera moins d'expérience</p>
 				</div>
@@ -127,10 +127,11 @@
 						<div class="timer text-white">{{ purchase.cooldown | duration_format }}</div>
 						<div class="item-icon">🥕</div>
 						<span id="compteur-harvest-{{ purchase.id }}" data-id={{ purchase.id }} class="ml-2"></span>
+						<div id="gain-info-{{ purchase.id }}" style="display: none; position: relative;"></div>
 						<div id="div-btn-harvest-{{ purchase.id }}" data-id={{ purchase.id }}>
 									{% if purchase.isClaimable %}
 							<button id="harvest-btn-{{ purchase.id }}" data-id={{ purchase.id }}
-									data-url="{{ path('harvest', {id: purchase.id }) }}" class="harvest-button animate-button-harvest harvest-btn">Récolter</button>
+									data-url="{{ path('harvest', {id: purchase.id }) }}" data-gain={{ purchase.gain}} class="harvest-button animate-button-harvest harvest-btn">Récolter</button>
 							{% else %}
 								<p class="fw-600" id="remained-seconds-harvest-{{ purchase.id }}" data-id={{ purchase.id }} data-cooldown={{ purchase.cooldown }}>{{ purchase.remainedSeconds | duration_format }}</p>
 							{% endif %}
@@ -164,6 +165,11 @@
 						    </table> #}
 
 	{# <a href="{{ path('app_purchase_new') }}">Create new</a> #}
+	{# <button id="toggle-music"><i class="fa-solid fa-volume-high" style="color: white;"></i></button> #}
+	<audio id="harvest-sound" src="{{ asset('sounds/485718__spacejoe__coin-drop-2.wav') }}"></audio>
+	{# <audio id="ambiant-music" src="{{ asset('sounds/spa-ambient-10min-253179.mp3') }}" loop></audio> #}
+	{# <button id="myButton">Clique ici</button> #}
+
 {% endblock %}
 {% block script %}
 	<script>
@@ -237,7 +243,36 @@ function convertToSeconds( timeString ) {
 
 	return( hours * 3600 ) + ( minutes * 60 ) + seconds; // Conversion en secondes
 }
+
+// let isPlaying = false;
+// $(document).one('click', function() {
+//     $('#ambiant-music')[0].play();
+// 	isPlaying = true;
+// 	$('#toggle-music').html('<i class="fa-solid fa-volume-xmark" style="color: white;"></i>');
+// });
 $( document ).ready( function () {
+	// pour la musique d'ambiance
+	// let music = $('#ambiant-music')[0];
+
+    //     $('#toggle-music').on('click', function() {
+    //         if (!isPlaying) {
+    //             music.play();
+    //             $('#toggle-music').html('<i class="fa-solid fa-volume-xmark" style="color: white;"></i>');
+    //             isPlaying = true;
+    //         } else {
+    //             music.pause();
+    //             $('#toggle-music').html('<i class="fa-solid fa-volume-high" style="color: white;"></i>');
+    //             isPlaying = false;
+    //         }
+    //     });
+	
+	$("#harvest-all-link").on('click', function() {
+            $('#harvest-sound')[0].play();
+        });
+
+		
+
+	// pour le compte à rebours
 
 	$( '[id^="remained-seconds-harvest-"]' ).each( function () { // console.log($(this).text()); // ou fais autre chose
 		let remainedParagraph = $( this );
@@ -289,6 +324,8 @@ $( document ).ready( function () {
 
 				$button.on( 'click', function () {
 					const $button = $( this );
+					// jouer le son de la récolte
+							$('#harvest-sound')[0].play();
 					// $button.hide();
 					const id = $button.data( 'id' );
 					const url = $button.data( 'url' );
@@ -304,7 +341,7 @@ $( document ).ready( function () {
 						if ( response.isClaimable ) {
 
 							$( "#money" ).text( "Argent : " + response.money.toLocaleString( 'fr-FR' ) + " €" )
-							$( "#exp" ).text( "Experience : " + response.exp )
+							$( "#exp" ).text( "Expérience : " + response.exp )
 							startCountdown( $button, $counter, response.cooldown );
 						}
 
@@ -333,71 +370,43 @@ $( document ).ready( function () {
 			counterValue--;
 		} }
 
-		/*// Appel de la fonction toutes les secondes (1000ms)
-		let intervalRefresh = setInterval( updateCounter, 1000 );
-
-		// Arrêter le décompte quand il arrive à zéro
-		setTimeout( function () {
-			clearInterval( intervalRefresh );
-			// faire réapparaître le bouton
-			if ( counterValue == -1 ) {
-				let idBtn = '#harvest-btn-' + id
-
-				// Créer le bouton dynamiquement avec jQuery
-				let $button = $( '<button>', {
-					id: 'harvest-btn-' + id,
-					'data-id': id,
-					'data-url': '/purchase/harvest/' + id,
-					class: 'btn custom-bg-parrot-green harvest-btn text-color-white',
-					text: 'Récolter'
-				} );
-
-				$button.on( 'click', function () {
-					const $button = $( this );
-					$button.hide();
-					const id = $button.data( 'id' );
-					const url = $button.data( 'url' );
-					const $counter = $( '#compteur-harvest-' + id );
-					// console.log('#compteur-' + id);
-					$counter.text( "Récupération de l'argent" );
-
-
-					// Appel AJAX vers la route Symfony
-					$.ajax( {
-						url: url, method: 'GET', // ou POST selon ta route
-						success: function ( response ) {
-						if ( response.isClaimable ) {
-
-							$( "#money" ).text( "Argent : " + response.money.toLocaleString( 'fr-FR' ) + " €" )
-							$( "#exp" ).text( "Experience : " + response.exp )
-							startCountdown( $button, $counter, response.cooldown );
-						}
-
-						},
-							error: function ( err ) {
-							console.error( 'Erreur AJAX :', err );
-						}
-					} );
-				} );
-
-				// Ajouter le bouton au DOM (par exemple à un élément avec l'ID #container)
-				$( '#div-btn-harvest-' + id ).append( $button );
-
-				let idP = '#remained-seconds-harvest-' + id
-				$( idP ).hide()
-			}
-		}, ( counterValue + 2 ) * 1000 ); // Arrêter après le dernier décompte*/
+		
 	} );
 
 
 	$( '.harvest-btn' ).click( function () {
+		
 		const $button = $( this );
+		// jouer le son de la récolte
+		// $button.on('click', function() {
+            $('#harvest-sound')[0].play();
+        // });
 		$button.hide();
 		const id = $button.data( 'id' );
 		const url = $button.data( 'url' );
+		const gain = $button.data( 'gain' );
 		const $counter = $( '#compteur-harvest-' + id );
 		// console.log('#compteur-' + id);
 		$counter.addClass("fw-600").text( "Récupération de l'argent" );
+
+		// pour les animations argent et xp gagnées
+        let $gainInfo = $('#gain-info-' + id);
+
+		$gainInfo.text('+ ' + gain + '€ + 2xp')
+            .css({top: '30px', opacity: 1}) // Position de départ
+            .show()
+            .animate(
+                { top: '10px' }, 
+                {
+                    duration: 1500,        // plus lent
+                    easing: 'swing',        // "swing" est plus doux que "linear"
+                    step: function(now, fx) {
+                        if (fx.prop === 'top' && parseInt(now) <= 10) {
+                            $gainInfo.fadeOut(400); // fondu quand arrivé à 10px
+                        }
+                    }
+                }
+            );
 
 
 		// Appel AJAX vers la route Symfony
@@ -407,7 +416,7 @@ $( document ).ready( function () {
 				if ( response.isClaimable ) {
 
 					$( "#money" ).text( "Argent : " + response.money.toLocaleString( 'fr-FR' ) + " €" )
-					$( "#exp" ).text( "Experience : " + response.exp )
+					$( "#exp" ).text( "Expérience : " + response.exp )
 					startCountdown( $button, $counter, response.cooldown );
 				}
 

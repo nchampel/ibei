@@ -5,7 +5,7 @@
 {% block body %}
     <div class="row d-flex flex-column align-items-center justify-content-center">
                 <h1 class="h3 mb-3 font-weight-normal">S'inscrire</h1>
-            <div class="col-2">
+            <div class="col-2 text-center">
         {{ form_errors(registrationForm) }}
 
         {{ form_start(registrationForm) }}
@@ -21,7 +21,7 @@
             }) }} #}
             {# {{ form_row(registrationForm.agreeTerms) }} #}
             <div class="d-flex justify-content-center mt-4 mb-2">
-                <button type="submit" class="btn btn-primary btn-lg">Enregistrer</button>
+                <button type="submit" class="btn btn-primary btn-lg box-shadow-custom">Enregistrer</button>
             </div>
             </div>
         {{ form_end(registrationForm) }}

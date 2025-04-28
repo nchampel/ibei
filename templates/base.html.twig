@@ -35,9 +35,9 @@
     </header> #}
     <div class="w3-bar w3-black">
         <a href={{ path('app_home')}} class="w3-bar-item w3-button">Ibei</a>
-        <a href="#about" class="w3-bar-item w3-button">About</a>
+        {# <a href="#about" class="w3-bar-item w3-button">About</a>
         <a href="#members" class="w3-bar-item w3-button">Members</a>
-        <a href="#contact" class="w3-bar-item w3-button">Contact</a>
+        <a href="#contact" class="w3-bar-item w3-button">Contact</a> #}
     </div>
 
 
@@ -48,7 +48,7 @@
         <!-- Contenu principal -->
         {# <main class="col-12 col-lg-9 p-4 bg-dark"> #}
         <main class="col-12 pl-4 border-top border-light row d-flex flex-column justify-content-between h-100 align-items-center">
-            <div class="text-white w-100">
+            <div class="w-100">
                 <h1 class="text-center">Ibei</h1>
                 <p class="text-center">Le jeu par navigateur aux multiples gameplays</p>
             </div>
@@ -65,7 +65,7 @@
                 </div>
                 {% endfor %}
 		    {% endfor %}
-            <div class="text-white w-100">
+            <div class="w-100">
             {% block body %}
                 <h1 class="fs-3 fw-bold mb-4 text-warning">Bienvenue, Seigneur des Terres du Nord</h1>
 
@@ -106,7 +106,7 @@
                 </div>
             {% endblock %}
             </div>
-			<footer class="custom-footer text-white text-center w-100">Studio Zensaikeunde</footer>
+			<footer class="custom-footer text-center w-100">Studio Zensaikeunde</footer>
         </main>
     </div>
 

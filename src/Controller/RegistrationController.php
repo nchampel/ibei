@@ -27,7 +27,7 @@ class RegistrationController extends AbstractController
         if ($appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
-        if ($_ENV['APP_TEST'] == 'true') {
+        if ($appService->getConfig('test') == 'true') {
             return $this->redirectToRoute('app_login');
         }
         $user = new User();

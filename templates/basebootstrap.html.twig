@@ -21,10 +21,13 @@
 
 		{% block javascripts %}
 			{{ encore_entry_script_tags('app') }}
+			<script src="https://kit.fontawesome.com/c55b864324.js" crossorigin="anonymous"></script>
 		{% endblock %}
 	</head>
 	{# <body class="bg-dark text-white font-serif"> #}
 	<body class="custom-bg-app font-serif d-flex flex-column fw-600">
+	
+	<audio id="ambiant-music" src="{{ asset('sounds/spa-ambient-10min-253179.mp3') }}" loop></audio>
 
 		<!-- Barre du haut -->
 		{# <header class="bg-secondary shadow-sm">
@@ -37,12 +40,13 @@
 				            </nav>
 				        </div>
 				    </header> #}
-			<div class="w3-black menu-top-height d-flex align-items-center justify-content-between border-bottom border-light "> 
-				<div>
+			<div class="w3-black d-flex align-items-center justify-content-between"> 
+				<div class="">
 					<a href={{ path('app_home')}} class="w3-button">Ibei</a>
+					<a href={{ path('app_shop_home')}} class="w3-button">Boutique</a>
 				</div>
 				 {# <a href={{ path('app_ranking')}} class="w3-bar-item w3-button">Classement</a>  #}
-				<div>
+				<div class="">
 					<span class="">Jackpot minimum :
 						{{ myapp.getJackpot() | format_number }}
 						€
@@ -52,17 +56,22 @@
 							</span>
 						{% endif %}
 				</div>
-				<div class="mr-4">
+				<div class="d-flex mr-4">
+					<div id="toggle-music" class="mr-4"><i class="fa-solid fa-volume-high" style="color: white;"></i></div>
 					{% if app.user %}
-						<span class="">Joueur :
-							{{user.getPseudo()}}</span>
+						{# <span class="">Joueur :
+							{{user.getPseudo()}}</span> #}
+					<div>
 						<a class="" href={{ path('app_logout') }}>Se déconnecter</a>
+					</div>
 					{% else %}
+					<div>
 						<a class="" href={{ path('app_login') }}>Se connecter</a>
-						{% if myapp.getConfig('test') != 'true' %}
-							
-							<a class="" href={{ path('app_register') }}>S'inscrire</a>
-						{% endif %}
+					{% if myapp.getConfig('test') != 'true' %}
+						
+						<a class="" href={{ path('app_register') }}>S'inscrire</a>
+					{% endif %}
+					</div>
 					{% endif %}
 				</div>
 			</div>
@@ -223,7 +232,28 @@
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script>
+		let isPlaying = false;
+		$(document).one('click', function() {
+			$('#ambiant-music')[0].play();
+			isPlaying = true;
+			$('#toggle-music').html('<i class="fa-solid fa-volume-xmark" style="color: white;"></i>');
+		});
 			$(document).ready(function () {
+				// pour la musique d'ambiance
+	let music = $('#ambiant-music')[0];
+
+        $('#toggle-music').on('click', function() {
+            if (!isPlaying) {
+                music.play();
+                $('#toggle-music').html('<i class="fa-solid fa-volume-xmark" style="color: white;"></i>');
+                isPlaying = true;
+            } else {
+                music.pause();
+                $('#toggle-music').html('<i class="fa-solid fa-volume-high" style="color: white;"></i>');
+                isPlaying = false;
+            }
+        });
+
 				{% if myapp.getJackpotWon() %}
 					$("#modal-jackpot").removeClass("custom-hide");
 					// remettre jackpot is_claimend à false
