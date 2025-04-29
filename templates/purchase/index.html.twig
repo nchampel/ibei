@@ -27,7 +27,7 @@
 	<div class="tab-content mt-5" id="myTabContent">
 		<div class="tab-pane fade {{ userNotconnected.tab }}" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
 		<h2 class="p-2 mb-4 custom-bg-app custom-border-radius box-shadow-custom custom-max-width text-center margin-auto-center">En vente</h2>
-			<div class="d-flex flow-row justify-content-center">
+			<div class="d-flex flow-row flex-wrap justify-content-center">
 				{% for purchase in purchasesBuyable %}
 					{# <div class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius custom-shadow-buyable" style="width: 18rem;">
 						{% if app.user and app.user.money >= purchase.price %}
@@ -98,7 +98,7 @@
 				</div>
 
 			{% endif %}
-			<div class="d-flex flow-row justify-content-center align-items-center">
+			<div class="d-flex flow-row flex-wrap justify-content-center align-items-center">
 				{% for purchase in purchasesPossessed %}
 					{# <div
 						class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius custom-shadow-possessed" style="width: 18rem;">
