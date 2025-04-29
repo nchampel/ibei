@@ -29,6 +29,13 @@
 	
 	<audio id="ambiant-music" src="{{ asset('sounds/spa-ambient-10min-253179.mp3') }}" loop></audio>
 
+	{# pour maj jackpot, notif message #}
+	{# setInterval(() => {
+  $.get('/api/check-updates', (data) => {
+    if (data.newMessage) { alert("Nouveau message !"); }
+  });
+}, 5000); #}
+
 		<!-- Barre du haut -->
 		{# <header class="bg-secondary shadow-sm">
 				        <div class="container-fluid px-4 py-3 d-flex justify-content-between align-items-center">
@@ -99,7 +106,7 @@
 
 		<div style="min-height: 20px;"></div>
 		{# <div class="clear-flex"></div> #}
-		<div class="d-flex flex-row">
+		<div class="equal-height-container">
 
 			<!-- Menu latéral -->
 			{# <aside class="bg-primary p-4 shadow-lg col-12 col-lg-3"> #}
