@@ -50,8 +50,8 @@
 					<span class="">Jackpot minimum :
 						{{ myapp.getJackpot() | format_number }}
 						€
-						{% if myapp.getJackpotWonDate() %}
-							, remporté le {{ myapp.getJackpotWonDate() }}</span>
+						{% if myapp.getJackpotWonDate() and myapp.getJackpotWinner() %}
+							, remporté le {{ myapp.getJackpotWonDate() }} par {{ myapp.getJackpotWinner() }}</span>
 						{% else %}
 							</span>
 						{% endif %}

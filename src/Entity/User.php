@@ -62,6 +62,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Ressource::class, orphanRemoval: true)]
     private Collection $ressources;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Pot::class)]
+    private Collection $pots;
+
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
@@ -69,6 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->idles = new ArrayCollection();
         $this->logs = new ArrayCollection();
         $this->ressources = new ArrayCollection();
+        $this->pots = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -366,6 +370,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($ressource->getUser() === $this) {
                 $ressource->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Pot>
+     */
+    public function getPots(): Collection
+    {
+        return $this->pots;
+    }
+
+    public function addPot(Pot $pot): static
+    {
+        if (!$this->pots->contains($pot)) {
+            $this->pots->add($pot);
+            $pot->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePot(Pot $pot): static
+    {
+        if ($this->pots->removeElement($pot)) {
+            // set the owning side to null (unless already changed)
+            if ($pot->getUser() === $this) {
+                $pot->setUser(null);
             }
         }
 

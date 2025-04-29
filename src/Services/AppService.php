@@ -49,6 +49,7 @@ class AppService
             $this->jackpot->setGain(0);
             $this->jackpot->setClaimedAt(new \DateTime('now'));
             $this->jackpot->setIsClaimed(true);
+            $this->jackpot->setUser($this->user);
             // $this->manager->persist($this->user);
             $this->manager->persist($this->jackpot);
             $this->manager->persist($moneyResource);
@@ -61,6 +62,13 @@ class AppService
 
     public function getJackpotWon(){
         return $this->jackpot->isClaimed();
+    }
+    
+    public function getJackpotWinner(){
+        if(is_null($this->jackpot->getUser())){
+            return null;
+        }
+        return $this->jackpot->getUser()->getPseudo();
     }
 
     public function getJackpotWonDate(): ?string

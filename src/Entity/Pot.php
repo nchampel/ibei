@@ -26,8 +26,10 @@ class Pot
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $claimedAt = null;
 
-    #[ORM\OneToOne(inversedBy: 'pot', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'pots')]
     private ?User $user = null;
+
+    
 
     public function getId(): ?int
     {
@@ -93,6 +95,8 @@ class Pot
 
         return $this;
     }
+
+    
 
     
 }
