@@ -8,6 +8,7 @@ use App\Repository\IdleRepository;
 use App\Repository\PotRepository;
 use App\Repository\ProductInfosRepository;
 use App\Repository\PurchaseRepository;
+use App\Repository\RessourceRepository;
 use App\Repository\UserRepository;
 use App\Services\AppService;
 use App\Services\PurchaseService;
@@ -26,11 +27,13 @@ class PurchaseController extends AbstractController
     private EntityManagerInterface $manager;
     private PurchaseService $purchaseService;
     private $appService;
-    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService, AppService $appService)
+    private RessourceRepository $ressourceRepository;
+    public function __construct(EntityManagerInterface $entityManager, PurchaseService $purchaseService, AppService $appService, RessourceRepository $ressourceRepository)
     {
         $this->manager = $entityManager;
         $this->purchaseService = $purchaseService;
         $this->appService = $appService;
+        $this->ressourceRepository = $ressourceRepository;
     }
     /**
      * @param \App\Entity\Purchase[] $purchasesBuyable
@@ -85,8 +88,12 @@ class PurchaseController extends AbstractController
         // regarder si les objets achetables peuvent être achetés
         $isPurchaseBuyable = false;
         // $purchasesBuyable = $purchaseRepository->findByUserNull(true);
+        if($user){
+
+            $moneyResource = $this->ressourceRepository->findOneBy(['user' => $user, 'type' => 'argent']);
+        }
         foreach ($purchasesBuyable as $purchase) {
-            if ($user && $purchase->getPrice() <= $user->getMoney()) {
+            if ($user && $purchase->getPrice() <= $moneyResource->getValue()) {
                 $isPurchaseBuyable = true;
             }
         }
@@ -117,14 +124,16 @@ class PurchaseController extends AbstractController
         if (!$user->getNature()) {
             return $this->redirectToRoute('app_user_determine_nature');
         }
-        $money = $user->getMoney();
+        $moneyResource = $this->ressourceRepository->findOneBy(['user' => $user, 'type' => 'argent']);
+        $money = $moneyResource->getValue();
 
         $isClaimable = $purchase->getIsClaimable();
         if (!$isClaimable) {
             return new JsonResponse(['isClaimable' => false, 'money' => $money, 'cooldown' => $purchase->getCooldown()]);
         } else {
             $newMoney = $money + $gain;
-            $user->setMoney($newMoney);
+            $moneyResource->setValue($newMoney);
+            // $user->setMoney($newMoney);
             $exp = $user->getExp();
             // $expPurchase = $purchase->getProduct->getExp();
             $expPurchase = 2;
@@ -132,6 +141,7 @@ class PurchaseController extends AbstractController
             $user->setExp($newExp);
             $purchase->setClaimedAt(new \DateTimeImmutable());
             $this->manager->persist($user);
+            $this->manager->persist($moneyResource);
             $this->manager->persist($purchase);
             $this->manager->flush();
             $description = $purchase->getProduct()->getName() . " récolté, gain de " . $gain . " €, expérience " . $expPurchase . " points.";
@@ -169,10 +179,12 @@ class PurchaseController extends AbstractController
             return $this->redirectToRoute('app_user_determine_nature');
         }
         // $user = $userRepository->find($security->getUser());
-        $money = $user->getMoney();
+        $moneyResource = $this->ressourceRepository->findOneBy(['user' => $user, 'type' => 'argent']);
+        $money = $moneyResource->getValue();
         $price = $purchase->getPrice();
         if ($money >= $price) {
-            $user->setMoney($money - $price);
+            // $user->setMoney($money - $price);
+            $moneyResource->setValue($money - $price);
             $purchase->setUser($user);
             $purchase->setBoughtAt(new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris')));
             $pot = $potRepository->findOneBy(['type' => 'jackpot']);
@@ -184,9 +196,10 @@ class PurchaseController extends AbstractController
             $entityManager->persist($user);
             $entityManager->persist($pot);
             $entityManager->persist($purchase);
+            $entityManager->persist($moneyResource);
             $entityManager->flush();
 
-            $description = $purchase->getProduct()->getName() . " acheté pour le prix de " . $price . " €. Argent restant : " . $user->getMoney() . " €";
+            $description = $purchase->getProduct()->getName() . " acheté pour le prix de " . $price . " €. Argent restant : " . $moneyResource->getValue() . " €";
             $this->appService->createLog($description, $purchase->getId(), "produit", "achat", $user);
             $this->addFlash('success', "Vous avez acheté " . $purchase->getProduct()->getName());
         } else {

@@ -22,7 +22,7 @@ class RegistrationController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager,
-        AppService $appService
+        AppService $appService,
     ): Response {
         if ($appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
@@ -45,7 +45,10 @@ class RegistrationController extends AbstractController
             $currentDate = new \DateTime();
             $currentDate->setTimezone(new \DateTimeZone('Europe/Paris'));
             $user->setCreatedAt($currentDate);
-            $user->setMoney(50);
+            $moneyResource = new Ressource();
+            $moneyResource->setValue(0);
+            $moneyResource->setType('argent');
+            // $user->setMoney(50);
             $user->setExp(0);
             $pot = new Pot();
             $pot->setType("utilisateur");
@@ -60,6 +63,7 @@ class RegistrationController extends AbstractController
                 $resource->setValue(0);
                 $entityManager->persist($resource);
             }
+            $entityManager->persist($moneyResource);
             $entityManager->persist($pot);
             $entityManager->persist($user);
             $entityManager->flush();

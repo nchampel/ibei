@@ -16,6 +16,13 @@
   /* 3px 3px 3px 3px #ff6961; lumière "réfléchie", plus claire */
 }
 
+body {
+  background-image: url('/images/forest.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .text-decoration-none{
   text-decoration: none;
 }
@@ -109,4 +116,7 @@ a:hover{
   .icon-euro-side {
     width: 30px;
     animation: euro-anim 2s infinite ease-in-out;
+  }
+  .margin-auto-center{
+    margin: auto;
   }

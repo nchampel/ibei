@@ -16,7 +16,8 @@
 	{% endif %}
 	{% if app.user %}
 		<p id="money">Argent :
-			{{ app.user.money }}
+			{# {{ app.user.money }} #}
+			{{ resource.getResource('argent') }}
 			€</p>
 		<p id="exp">Expérience :
 			{{ app.user.exp }}

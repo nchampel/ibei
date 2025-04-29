@@ -14,11 +14,11 @@
 
         {% endif %}
         <div class="row d-flex flex-column align-items-center justify-content-center">
-                <h1 class="h3 mb-3 font-weight-normal">Connexion</h1>
+                <h1 class="h3 mb-3 p-4 font-weight-normal custom-bg-app custom-border-radius box-shadow-custom">Connexion</h1>
             <div class="col-2 text-center">
-                <label for="username">Email</label>
+                <label for="username" class="p-2 custom-bg-app custom-border-radius box-shadow-custom">Email</label>
                 <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control w-100" autocomplete="email" required autofocus>
-                <label for="password">Password</label>
+                <label for="password" class="p-2 mt-4 custom-bg-app custom-border-radius box-shadow-custom">Password</label>
                 <input type="password" name="_password" id="password" class="form-control mb-4 w-100" autocomplete="current-password" required>
 
                 <input type="hidden" name="_csrf_token"
@@ -42,7 +42,7 @@
                 </div>
                 {% if myapp.getConfig('test') != 'true' %}
                 <div class="d-flex justify-content-center">
-                    <a href={{ path('app_register')}}>Inscription</a>
+                    <a href={{ path('app_register')}} class="p-2 custom-bg-app custom-border-radius box-shadow-custom">Inscription</a>
                 </div>
                 {% endif %}
             </div>

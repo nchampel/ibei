@@ -122,7 +122,7 @@
 							<p id="money" class="d-flex align-items-center justify-content-center">
 							<img src="{{ asset('images/euro ibei en cours 5.png') }}" alt="euro" class="icon icon-euro-side" />
 								{# <span class="text-bold">Argent : </span> #}
-								{{ user.getMoney() | format_number}}
+								{{ resource.getResource('argent') | format_number}}
 								€</p>
 							<p id="exp" class="">
 								<span class="text-bold">Expérience : </span>
@@ -138,8 +138,8 @@
 								{# <li><a href="#" class="text-white text-decoration-none d-block mb-2">🏰 Royaume</a></li> #}
 								<li class="text-black step-button">
 									{# <a href="#" class="box-shadow-custom text-decoration-none custom-border-radius pt-2 pb-2 px-5 mb-2 fw-bold custom-bg-{{ user.getNature() }} text-black">Etape 1</a> #}
-									<a href="#" class="text-black text-decoration-none custom-border-radius pt-2 pb-2 mb-2 
-									custom-nature-button custom-nature-button-{{ user.getNature() }}">Étape 1</a>
+									<a href="{{ path('app_purchase_index')}}" class="text-black text-decoration-none custom-border-radius pt-2 pb-2 mb-2 
+									custom-nature-button custom-nature-button-{{ user.getNature() }}">Forêt</a>
 								</li>
 								{#<li>
 															<a href="#" class="text-decoration-none d-block mb-2">💰 Économie</a>
@@ -162,7 +162,7 @@
 			<!-- Contenu principal -->
 			{# <main class="col-12 col-lg-9 p-4 bg-dark"> #}
 			<main class="flex-grow-1 container-fluid">
-				<div id="about" class="w3-container w3-padding-1 mb-4">
+				<div id="about" class="w3-container w3-padding-1 mb-4 custom-bg-app custom-border-radius box-shadow-custom">
 					<h1 class="w3-center">Ibei</h1>
 					<p class="w3-center">Le jeu par navigateur aux multiples gameplays</p>
 				</div>

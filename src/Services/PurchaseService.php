@@ -3,19 +3,24 @@
 namespace App\Services;
 
 use App\Entity\User;
+use App\Repository\RessourceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PurchaseService
 {
     private EntityManagerInterface $entityManager;
+    private RessourceRepository $ressourceRepository;
 
-    public function __construct(EntityManagerInterface $entityManagerInterface){
+    public function __construct(EntityManagerInterface $entityManagerInterface, RessourceRepository $ressourceRepository){
         $this->entityManager = $entityManagerInterface;
+        $this->ressourceRepository = $ressourceRepository;
     }
     
     public function harvestProduct(User $user, $appService, $category): void
     {
-        $money = $user->getMoney();
+        $moneyResource = $this->ressourceRepository->findOneBy(['user' => $user, 'type' => 'argent']);
+        $money = $moneyResource->getValue();
+        // $money = $user->getMoney();
         $xp = $user->getExp();
         $purchases = $user->getPurchases();
         $harvestedCount = 0;
@@ -35,9 +40,11 @@ class PurchaseService
             }
         }
         if($harvestedCount > 0){
-            $user->setMoney($money);
+            $moneyResource->setValue($money);
+            // $user->setMoney($money);
             $user->setExp($xp);
             $this->entityManager->persist($user);
+            $this->entityManager->persist($moneyResource);
             $this->entityManager->flush();
             $description = $harvestedCount . " produit(s) récolté(s), gain de " . $gainTotal . " €, expérience " . $xpTotal . " points.";
             $appService->createLog($description, null, "produit", $category, $user);

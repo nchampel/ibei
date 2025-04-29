@@ -8,7 +8,7 @@
 {% block body %}
 
 
-	<ul class="nav nav-tabs" id="myTab" role="tablist">
+	<ul class="nav nav-tabs custom-tab-color" id="myTab" role="tablist">
 		<li class="nav-item">
 			<a class="nav-link custom-relative {{ userNotconnected.nav }}" id="buyable-tab" data-bs-toggle="tab" href="#buyable" role="tab">
 				En vente
@@ -26,6 +26,7 @@
 
 	<div class="tab-content mt-5" id="myTabContent">
 		<div class="tab-pane fade {{ userNotconnected.tab }}" id="buyable" role="tabpanel" aria-labelledby="buyable-tab">
+		<h2 class="p-2 mb-4 custom-bg-app custom-border-radius box-shadow-custom custom-max-width text-center margin-auto-center">En vente</h2>
 			<div class="d-flex flow-row justify-content-center">
 				{% for purchase in purchasesBuyable %}
 					{# <div class="card mr-4 box-shadow-custom custom-bg-card text-white custom-border-radius custom-shadow-buyable" style="width: 18rem;">
@@ -62,12 +63,12 @@
 									€</span>
 							</div>
 						</div>
-							{% if app.user and user.getMoney() >= purchase.price %}
+							{% if app.user and resource.getResource('argent') >= purchase.price %}
 							<div class="mt-4 buy-button animate-button-harvest">
 								<a href={{ path('app_purchase_buy', {'id': purchase.id} )}} class="">Acheter</a>
 							</div>
-							{% elseif app.user and user.getMoney() < purchase.price %}
-								<p class="mt-4 no-money">Manquant : {{ (purchase.price - user.getMoney()) | format_number }} €</p>
+							{% elseif app.user and resource.getResource('argent') < purchase.price %}
+								<p class="mt-4 no-money">Manquant : {{ (purchase.price - resource.getResource('argent')) | format_number }} €</p>
 							{% endif %}
 						<div class="gain p-2">
 							<div class="coin d-flex align-items-center justify-content-center">
@@ -87,12 +88,13 @@
 			{% endif %}
 		</div>
 		<div class="tab-pane fade {{ userConnected.tab }}" id="possessed" role="tabpanel" aria-labelledby="possessed-tab">
+		<h2 class="p-2 mb-4 custom-bg-app custom-border-radius box-shadow-custom custom-max-width text-center margin-auto-center">Possédés</h2>
 			{% if app.user %}
-				<div class="text-center">
+				<div class="text-center mb-4">
 					<p>
 						<a id="harvest-all-link" href={{ path('app_purchase_harvest_all', {id: app.user.id } ) }}>Tout récolter</a>
 					</p>
-					<p class="mt-4">Attention : Faire ceci vous octroiera moins d'expérience</p>
+					<p class="mt-4 p-4 custom-bg-app custom-border-radius box-shadow-custom custom-max-width margin-auto-center">Attention : Faire ceci vous octroiera moins d'expérience</p>
 				</div>
 
 			{% endif %}
