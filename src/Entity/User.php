@@ -65,6 +65,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Pot::class)]
     private Collection $pots;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ForestResource::class)]
+    private Collection $forestResources;
+
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
@@ -73,6 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->logs = new ArrayCollection();
         $this->ressources = new ArrayCollection();
         $this->pots = new ArrayCollection();
+        $this->forestResources = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -400,6 +404,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($pot->getUser() === $this) {
                 $pot->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ForestResource>
+     */
+    public function getForestResources(): Collection
+    {
+        return $this->forestResources;
+    }
+
+    public function addForestResource(ForestResource $forestResource): static
+    {
+        if (!$this->forestResources->contains($forestResource)) {
+            $this->forestResources->add($forestResource);
+            $forestResource->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeForestResource(ForestResource $forestResource): static
+    {
+        if ($this->forestResources->removeElement($forestResource)) {
+            // set the owning side to null (unless already changed)
+            if ($forestResource->getUser() === $this) {
+                $forestResource->setUser(null);
             }
         }
 

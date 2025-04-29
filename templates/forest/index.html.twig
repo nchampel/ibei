@@ -1,0 +1,155 @@
+{% extends 'basebootstrap.html.twig' %}
+
+{% block title %}Forêt{% endblock %}
+
+{% block body %}
+<style>
+    #map-container {
+        background-color:rgba(31, 186, 31, 0.88);
+        position: relative;
+        width: 600px;
+        height: 600px;
+        margin: auto;
+        border-radius: 10px;
+    }
+
+    #map-image {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .resource-icon {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+
+</style>
+
+    <div class="text-center mb-4">
+        <button id="prev-up">⬆️ Haut</button>
+    </div>
+    <div class="d-flex justify-content-center align-items-center margin-auto-center" style="max-width: 900px">
+        <div class="">
+            <button id="prev-left">⬅️ Gauche</button>
+        </div>
+        <div id="map-container"></div>
+        <div class="">
+            <button id="next-right">Droite ➡️</button>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+    <button id="next-down">Bas ⬇️</button>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+    let resources = {{ forestResources|json_encode|raw }};
+    let currentX = 50;  // Coordonnée initiale (centre de la carte)
+let currentY = 50;
+
+function displayGrid(x, y) {
+    $('#map-container img.resource-icon').remove(); // Nettoyer les anciennes ressources
+
+    const startX = x;
+    const startY = y;
+    const endX = x + 9;
+    const endY = y + 9;
+
+    console.log('x', startX)
+    console.log('y', startY)
+    console.log(resources)
+
+    const pageResources = resources.filter(r => r.x >= startX && r.x <= endX && r.y >= startY && r.y <= endY);
+
+    pageResources.forEach(resource => {
+        let posX = resource.x * 6 + 30;
+        let posY = resource.y * 6 + 30;
+        console.log(resource.x)
+        console.log(posX)
+        let imgSrc = "{{ asset('images/') }}" + resource.image_url;
+
+        let img = $('<img />', {
+            src: imgSrc,
+            class: 'resource-icon',
+            css: {
+                left: posX + 'px',
+                top: posY + 'px'
+            }
+        });
+
+        $('#map-container').append(img);
+    });
+
+    checkNavigationButtons(); // Vérifier l'état des boutons après chaque affichage
+}
+
+function checkNavigationButtons() {
+    // Masquer le bouton "Gauche" si on est déjà à la limite gauche
+    if (currentX <= 0) {
+        $('#prev-left').hide();
+    } else {
+        $('#prev-left').show();
+    }
+
+    // Masquer le bouton "Haut" si on est déjà à la limite haute
+    if (currentY <= 0) {
+        $('#prev-up').hide();
+    } else {
+        $('#prev-up').show();
+    }
+
+    // Masquer le bouton "Droite" si on est déjà à la limite droite
+    if (currentX >= 90) { // 100 cases - 10 visibles = 90
+        $('#next-right').hide();
+    } else {
+        $('#next-right').show();
+    }
+
+    // Masquer le bouton "Bas" si on est déjà à la limite basse
+    if (currentY >= 90) { // 100 cases - 10 visibles = 90
+        $('#next-down').hide();
+    } else {
+        $('#next-down').show();
+    }
+}
+
+$(document).ready(function () {
+    
+    displayGrid(currentX, currentY);
+
+    $('#prev-left').click(function () {
+        if (currentX > 0) {
+            currentX-= 10;
+            displayGrid(currentX, currentY);
+        }
+    });
+
+    $('#prev-up').click(function () {
+        if (currentY > 0) {
+            currentY-= 10;
+            displayGrid(currentX, currentY);
+        }
+    });
+
+    $('#next-right').click(function () {
+        if (currentX < 90) { // Limite à 90 pour ne pas dépasser 100 cases
+            currentX+=10;
+            displayGrid(currentX, currentY);
+        }
+    });
+
+    $('#next-down').click(function () {
+        if (currentY < 90) { // Limite à 90 pour ne pas dépasser 100 cases
+            currentY+=10;
+            displayGrid(currentX, currentY);
+        }
+    });
+});
+    </script>
+{% endblock %}
+
+
