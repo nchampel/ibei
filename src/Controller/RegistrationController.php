@@ -55,12 +55,18 @@ class RegistrationController extends AbstractController
             $pot->setUser($user);
             $pot->setGain(0);
             $pot->setIsClaimed(false);
-            $ressources = ['lien-unité', 'ticket'];
+            $ressources = ['lien-unité', 'ticket', 'argent'];
             foreach ($ressources as $ressourceType) {
                 $resource = new Ressource();
                 $resource->setType($ressourceType);
                 $resource->setUser($user);
-                $resource->setValue(0);
+                if($ressourceType == "argent") {
+
+                    $resource->setValue(50);
+                } else {
+
+                    $resource->setValue(0);
+                }
                 $entityManager->persist($resource);
             }
             $entityManager->persist($moneyResource);

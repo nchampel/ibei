@@ -11,11 +11,11 @@ class NatureChoicesType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $base = ["sora" => "Sora : Peuple altruiste avec tendance à l'abnégation",
-        "nano" => "Nano : Tribu ingénieuse mais autiste",
-        "altheron" => "Althéron : Civilisation non violente à la limite du stoïcisme",
-        "sotoc" => "Sotoc : La confrérie des braves au summum de l'arrogance",
-        "flumia" => "Flumia : La communauté des respectueux craintifs"];
+        $base = ["sora" => "Sora : Peuple altruiste",
+        "nano" => "Nano : Tribu ingénieuse",
+        "altheron" => "Althéron : Civilisation pacisfiste",
+        "sotoc" => "Sotoc : La confrérie des braves",
+        "flumia" => "Flumia : La communauté des respectueux"];
         
         $keysToFilter = $options['choices'];
 

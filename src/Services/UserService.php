@@ -47,17 +47,17 @@ class UserService
         return null;  // Si l'utilisateur n'est pas connecté, retourne null
     }
 
-    public function getMoney(): ?string
-    {
-        $token = $this->tokenStorage->getToken();
-        if ($token && $token->getUser() instanceof UserInterface) {
-            /** @var \App\Entity\User $user */
-            $user = $token->getUser();
-            return $user->getMoney();
-        }
+    // public function getMoney(): ?string
+    // {
+    //     $token = $this->tokenStorage->getToken();
+    //     if ($token && $token->getUser() instanceof UserInterface) {
+    //         /** @var \App\Entity\User $user */
+    //         $user = $token->getUser();
+    //         return $user->getMoney();
+    //     }
 
-        return null;  // Si l'utilisateur n'est pas connecté, retourne null
-    }
+    //     return null;  // Si l'utilisateur n'est pas connecté, retourne null
+    // }
 
     public function getExp(): ?string
     {
@@ -81,19 +81,19 @@ class UserService
 
         return null;  // Si l'utilisateur n'est pas connecté, retourne null
     }
-    
-    public function getDevise(): ?string
+
+    public function getMaxime(): ?string
     {
         $nature = $this->getNature();
         if ($nature) {
-            $devises = [
+            $maximes = [
                 "sotoc" => "ça c'est plus fort que le roquefort",
-                "altheron" => "il faut manger pour vivre, et non pas vivre pour manger",
-                "sora" => "aujourd'hui, on a plus le droit, ni d'avoir faim ni d'avoir froid",
+                "altheron" => "la paix est la loi, le calme trace la voie",
+                "sora" => "oh oh oh, venez chercher vos cadeaux !",
                 "flumia" => "loués soient la Terre Mère et le Ciel Père",
-                "nano" => "et voilà qui voilà inspecteur Gadget",
+                "nano" => "avec la magie, plus de folie",
             ];
-            return $devises[$nature];
+            return $maximes[$nature];
         }
 
         return null;
@@ -103,11 +103,11 @@ class UserService
         $nature = $this->getNature();
         if ($nature) {
             $descriptions = [
-                "sotoc" => "la confrérie des braves au summum de l'arrogance",
-                "altheron" => "civilisation non violente à la limite du stoïcisme",
-                "sora" => "peuple altruiste avec tendance à l'abnégation",
-                "flumia" => "la communauté des respectueux craintifs",
-                "nano" => "tribu ingénieuse mais autiste",
+                "sotoc" => "la confrérie des braves",
+                "altheron" => "civilisation pacifiste",
+                "sora" => "peuple altruiste",
+                "flumia" => "la communauté des respectueux",
+                "nano" => "tribu ingénieuse",
             ];
             return $descriptions[$nature];
         }
