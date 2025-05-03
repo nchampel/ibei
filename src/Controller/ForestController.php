@@ -51,7 +51,7 @@ class ForestController extends AbstractController
                     'type' => "field",
                     'x' => $xField,
                     'y' => $yField,
-                    'image_url' => "forest/icons/sol " . $fieldNumber . ".png", // ex: 'icons/wood.png'
+                    'image_url' => "forest/icons/sol " . $fieldNumber . ".jpg", // ex: 'icons/wood.png'
                     'isResource' => false
                 ];
             }

@@ -78,7 +78,7 @@ class ForestResourceController extends AbstractController
                     // $forestFieldGenerated->setForestResource($model);
                     $forestFieldGenerated->setX($i);
                     $forestFieldGenerated->setY($j);
-                    $forestFieldGenerated->setImageUrl($url . random_int(1, 6) . ".png");
+                    $forestFieldGenerated->setImageUrl($url . random_int(1, 6) . ".jpg");
                     $entityManager->persist($forestFieldGenerated);
                 }
                 $entityManager->flush();

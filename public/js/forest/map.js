@@ -5,8 +5,9 @@ function addResource(type, gain){
     const $resource = $("#" + type + "-resource");
     const value = parseInt($resource.html());
     $resource.html(value + gain);
-    
+
 }
+
 
 function displayGrid(x, y) {
   $("#map-container img.resource-icon").remove(); // Nettoyer les anciennes ressources ===========>>>>>>>>>>> attention, je pense pas utile car on charge que les ressources de la carte
@@ -91,6 +92,7 @@ function checkNavigationButtons() {
 }
 
 $(document).ready(function () {
+    console.log(resources);
   displayGrid(currentX, currentY);
 
   $("#prev-left").click(function () {
