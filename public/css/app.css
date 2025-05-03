@@ -130,3 +130,7 @@ a:hover{
 .equal-height-container > main {
     height: auto;
 }
+
+.custom-max-width{
+  max-width: 500px;
+}

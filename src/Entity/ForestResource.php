@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ForestResourceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -38,6 +40,14 @@ class ForestResource
 
     #[ORM\Column(nullable: true)]
     private ?int $y = null;
+
+    #[ORM\OneToMany(mappedBy: 'forestResource', targetEntity: ForestField::class)]
+    private Collection $forestFields;
+
+    public function __construct()
+    {
+        $this->forestFields = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -136,6 +146,36 @@ class ForestResource
     public function setY(?int $y): static
     {
         $this->y = $y;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ForestField>
+     */
+    public function getForestFields(): Collection
+    {
+        return $this->forestFields;
+    }
+
+    public function addForestField(ForestField $forestField): static
+    {
+        if (!$this->forestFields->contains($forestField)) {
+            $this->forestFields->add($forestField);
+            $forestField->setForestResource($this);
+        }
+
+        return $this;
+    }
+
+    public function removeForestField(ForestField $forestField): static
+    {
+        if ($this->forestFields->removeElement($forestField)) {
+            // set the owning side to null (unless already changed)
+            if ($forestField->getForestResource() === $this) {
+                $forestField->setForestResource(null);
+            }
+        }
 
         return $this;
     }

@@ -68,6 +68,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ForestResource::class)]
     private Collection $forestResources;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?ForestField $forestField = null;
+
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
@@ -436,6 +439,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $forestResource->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getForestField(): ?ForestField
+    {
+        return $this->forestField;
+    }
+
+    public function setForestField(?ForestField $forestField): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($forestField === null && $this->forestField !== null) {
+            $this->forestField->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($forestField !== null && $forestField->getUser() !== $this) {
+            $forestField->setUser($this);
+        }
+
+        $this->forestField = $forestField;
 
         return $this;
     }
