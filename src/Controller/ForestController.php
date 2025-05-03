@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\ForestResourceRepository;
 use App\Repository\RessourceRepository;
+use App\Services\AppService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,8 +32,17 @@ class ForestController extends AbstractController
     }
 
     #[Route('/carte/{jackpot}', name: 'app_forest_map')]
-    public function map(ForestResourceRepository $forestResourceRepository, RessourceRepository $ressourceRepository, $jackpot = null): Response
+    public function map(ForestResourceRepository $forestResourceRepository, RessourceRepository $ressourceRepository, AppService $appService, $jackpot = null): Response
     {
+        if ($appService->getConfig('maintenance') == "true") {
+            return $this->redirectToRoute('app_maintenance');
+        }
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+
+        if (!$user->getNature()) {
+            return $this->redirectToRoute('app_user_determine_nature');
+        }
         $forestResources = $forestResourceRepository->findDisplayable();
         // dump($forestResources);
         $formattedResources = [];
@@ -77,11 +87,12 @@ class ForestController extends AbstractController
 
         $finalResources = $this->mergeFieldAndResources($formattedField, $formattedResources);
 
-        $resourcesBDD = $ressourceRepository->findBy(["user" => $this->getUser()]);
+        $resourcesBDD = $ressourceRepository->findBy(["user" => $user]);
         $resources = [];
         foreach($resourcesBDD as $resourceBDD){
             $resources[$resourceBDD->getType()] = $resourceBDD->getValue();
         }
+        // dump($resources);
 
         return $this->render('forest/index.html.twig', [
             'forestResources' => $finalResources,
