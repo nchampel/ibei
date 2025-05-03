@@ -39,7 +39,9 @@ class ForestController extends AbstractController
         }
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
-
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
         if (!$user->getNature()) {
             return $this->redirectToRoute('app_user_determine_nature');
         }
