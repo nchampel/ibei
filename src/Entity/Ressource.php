@@ -27,6 +27,8 @@ class Ressource
     #[ORM\Column(type: Types::BIGINT)]
     private ?string $value = null;
 
+    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -79,4 +81,6 @@ class Ressource
 
         return $this;
     }
+
+     
 }

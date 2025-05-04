@@ -32,6 +32,9 @@ class Log
     #[ORM\Column(nullable: true)]
     private ?int $target = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $place = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +108,18 @@ class Log
     public function setTarget(?int $target): static
     {
         $this->target = $target;
+
+        return $this;
+    }
+
+    public function getPlace(): ?string
+    {
+        return $this->place;
+    }
+
+    public function setPlace(string $place): static
+    {
+        $this->place = $place;
 
         return $this;
     }

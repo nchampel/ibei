@@ -49,6 +49,61 @@ class ForestResource
         $this->forestFields = new ArrayCollection();
     }
 
+    private bool $isClaimable = true;
+    private int $remainedSeconds;
+
+    public function updateRemainedSeconds(){
+        $claimedAtBDD = $this->getClaimedAt();
+
+    if ($claimedAtBDD) {
+        // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
+        $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
+        $claimedAt = $claimedAtBDD->getTimestamp();
+
+        // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $nowSecondes = $now->getTimestamp();
+
+        $this->setRemainedSeconds($this->getCooldown() - ($nowSecondes - $claimedAt));
+    } else {
+        $this->setRemainedSeconds(0);
+    }
+    }
+
+    public function updateIsClaimable(): bool
+{
+    // Récupérer la date 'claimedAt' en UTC depuis la base de données
+    $claimedAtBDD = $this->getClaimedAt();
+
+    if ($claimedAtBDD) {
+        // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
+        $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
+        $claimedAt = $claimedAtBDD->getTimestamp();
+
+        // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $nowSecondes = $now->getTimestamp();
+
+        // Comparer la différence entre les timestamps (en secondes)
+        $this->setIsClaimable($nowSecondes - $claimedAt >= $this->getCooldown());
+        return $nowSecondes - $claimedAt >= $this->getCooldown();
+    } else {
+        // Si pas de 'claimedAt', c'est claimable
+        $this->setIsClaimable(true);
+        return true;
+    }
+}
+
+/**
+ * Get the value of isClaimable
+ *
+ * @return bool
+ */
+public function getIsClaimable(): bool
+{
+    return $this->isClaimable;
+}
+
     public function getId(): ?int
     {
         return $this->id;
@@ -176,6 +231,39 @@ class ForestResource
                 $forestField->setForestResource(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of isClaimable
+     *
+     * @param bool $isClaimable
+     * @return self
+     */
+    public function setIsClaimable(bool $isClaimable): self
+    {
+        $this->isClaimable = $isClaimable;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of remainedSeconds
+     */ 
+    public function getRemainedSeconds()
+    {
+        return $this->remainedSeconds;
+    }
+
+    /**
+     * Set the value of remainedSeconds
+     *
+     * @return  self
+     */ 
+    public function setRemainedSeconds($remainedSeconds)
+    {
+        $this->remainedSeconds = $remainedSeconds;
 
         return $this;
     }

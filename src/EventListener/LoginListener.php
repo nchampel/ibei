@@ -25,6 +25,6 @@ class LoginListener
         $ip = $request?->getClientIp();
 
         $description = "Connexion réussie de " . $user->getPseudo() . " depuis l'ip : " . $ip .".";
-        $this->appService->createLog($description, $user->getId(), "utilisateur", "connexion", $user);
+        $this->appService->createLog($description, $user->getId(), null, "utilisateur", "connexion", $user);
     }
 }

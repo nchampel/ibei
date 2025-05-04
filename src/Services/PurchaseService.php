@@ -47,7 +47,7 @@ class PurchaseService
             $this->entityManager->persist($moneyResource);
             $this->entityManager->flush();
             $description = $harvestedCount . " produit(s) récolté(s), gain de " . $gainTotal . " €, expérience " . $xpTotal . " points.";
-            $appService->createLog($description, null, "produit", $category, $user);
+            $appService->createLog($description, null, "test", "produit", $category, $user);
         }
         
     }
