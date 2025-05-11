@@ -45,18 +45,17 @@ class RegistrationController extends AbstractController
             $currentDate = new \DateTime();
             $currentDate->setTimezone(new \DateTimeZone('Europe/Paris'));
             $user->setCreatedAt($currentDate);
-            $moneyResource = new Ressource();
-            $moneyResource->setValue(0);
-            $moneyResource->setType('argent');
-            // $user->setMoney(50);
-            $moneyResource->setUser($user);
+            // $moneyResource = new Ressource();
+            // $moneyResource->setValue(0);
+            // $moneyResource->setType('argent');
+            // $moneyResource->setUser($user);
             $user->setExp(0);
             $pot = new Pot();
             $pot->setType("utilisateur");
             $pot->setUser($user);
             $pot->setGain(0);
             $pot->setIsClaimed(false);
-            $ressources = ['lien-unité', 'ticket', 'argent'];
+            $ressources = ['lien-unité', 'ticket', 'argent', 'champignon'];
             foreach ($ressources as $ressourceType) {
                 $resource = new Ressource();
                 $resource->setType($ressourceType);
@@ -70,7 +69,7 @@ class RegistrationController extends AbstractController
                 }
                 $entityManager->persist($resource);
             }
-            $entityManager->persist($moneyResource);
+            // $entityManager->persist($moneyResource);
             $entityManager->persist($pot);
             $entityManager->persist($user);
             $entityManager->flush();
