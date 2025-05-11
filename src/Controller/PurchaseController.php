@@ -145,7 +145,7 @@ class PurchaseController extends AbstractController
             $this->manager->persist($purchase);
             $this->manager->flush();
             $description = $purchase->getProduct()->getName() . " récolté, gain de " . $gain . " €, expérience " . $expPurchase . " points.";
-            $this->appService->createLog($description, $purchase->getId(), "produit", "récolte", $user);
+            $this->appService->createLog($description, $purchase->getId(),"test", "produit", "récolte", $user);
 
             return new JsonResponse([
                 'isClaimable' => true,
@@ -200,7 +200,7 @@ class PurchaseController extends AbstractController
             $entityManager->flush();
 
             $description = $purchase->getProduct()->getName() . " acheté pour le prix de " . $price . " €. Argent restant : " . $moneyResource->getValue() . " €";
-            $this->appService->createLog($description, $purchase->getId(), "produit", "achat", $user);
+            $this->appService->createLog($description, $purchase->getId(),"test", "produit", "achat", $user);
             $this->addFlash('success', "Vous avez acheté " . $purchase->getProduct()->getName());
         } else {
             $this->addFlash('error', "Vous n'avez pas assez d'argent");

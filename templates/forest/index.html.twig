@@ -13,6 +13,11 @@
         /* border-radius: 10px; */
     }
 
+    .resource-container {
+        position: absolute;
+        /* left / top définis dynamiquement */
+    }
+
     #map-image {
         width: 100%;
         height: auto;
@@ -47,6 +52,7 @@
     <div class="text-center mt-4">
     <button id="next-down">Bas ⬇️</button>
     </div>
+    <audio id="harvest-sound" src="{{ asset('sounds/485718__spacejoe__coin-drop-2.wav') }}"></audio>
 {% endblock %}
 {% block script %}
 <script>

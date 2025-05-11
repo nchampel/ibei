@@ -81,9 +81,10 @@ class AppService
         return null;
     }
     
-    public function createLog(string $description, ?int $target, string $type, string $category, ?User $user){
+    public function createLog(string $description, ?int $target, ?string $place, string $type, string $category, ?User $user){
         $log = new Log();
         $log->setDescription($description);
+        $log->setPlace($place);
         $log->setCategory($category);
         $log->setTarget($target);
         $log->setType($type);

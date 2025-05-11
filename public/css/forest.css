@@ -1,0 +1,47 @@
+.custom-cooldown-wrapper {
+    width: 100%;
+    max-width: 300px;
+    height: 30px;
+    /* background-color: #9d9292; */
+    /* background-color: #aeafb1; */
+    background-color: #1f2630;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 10px;
+  }
+  
+  .custom-cooldown-bar {
+    height: 100%;
+    background: rgb(255, 183, 0);
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 315px;
+    transition: width 1s linear;
+    width: 0%; /* Commence plein, diminue ensuite */
+  }
+  .custom-cooldown-bar-refresh {
+    height: 100%;
+    background: rgb(255, 183, 0);
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 30px;
+    width: 0%; /* Commence plein, diminue ensuite */
+  }
+  
+  .custom-cooldown-text {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 100%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    color: white;
+    pointer-events: none;
+  }

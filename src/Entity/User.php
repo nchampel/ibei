@@ -71,6 +71,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?ForestField $forestField = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Position::class, orphanRemoval: true)]
+    private Collection $positions;
+
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
@@ -80,6 +83,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->ressources = new ArrayCollection();
         $this->pots = new ArrayCollection();
         $this->forestResources = new ArrayCollection();
+        $this->positions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -461,6 +465,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $this->forestField = $forestField;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Position>
+     */
+    public function getPositions(): Collection
+    {
+        return $this->positions;
+    }
+
+    public function addPosition(Position $position): static
+    {
+        if (!$this->positions->contains($position)) {
+            $this->positions->add($position);
+            $position->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePosition(Position $position): static
+    {
+        if ($this->positions->removeElement($position)) {
+            // set the owning side to null (unless already changed)
+            if ($position->getUser() === $this) {
+                $position->setUser(null);
+            }
+        }
 
         return $this;
     }
