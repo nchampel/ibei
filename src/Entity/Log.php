@@ -117,7 +117,7 @@ class Log
         return $this->place;
     }
 
-    public function setPlace(string $place): static
+    public function setPlace(?string $place): static
     {
         $this->place = $place;
 

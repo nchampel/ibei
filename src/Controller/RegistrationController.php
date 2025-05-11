@@ -49,6 +49,7 @@ class RegistrationController extends AbstractController
             $moneyResource->setValue(0);
             $moneyResource->setType('argent');
             // $user->setMoney(50);
+            $moneyResource->setUser($user);
             $user->setExp(0);
             $pot = new Pot();
             $pot->setType("utilisateur");
