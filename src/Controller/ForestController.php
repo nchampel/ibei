@@ -36,6 +36,11 @@ class ForestController extends AbstractController
     }
 
     private function getCards($x, $y, $forestResourceRepository){
+        /*// établir la nouvelle partie de carte
+
+        // trouver ressources récoltables
+        commentaire pas sûr
+        */
         $forestResources = $forestResourceRepository->findDisplayable();
         $formattedResources = [];
         foreach ($forestResources as $resource) {
@@ -66,22 +71,7 @@ class ForestController extends AbstractController
         return $resources;
     }
 
-    #[Route('/carte/{jackpot}', name: 'app_forest_map')]
-    public function map(ForestResourceRepository $forestResourceRepository, RessourceRepository $ressourceRepository, AppService $appService, PositionRepository $positionRepository, $jackpot = null): Response
-    {
-        if ($appService->getConfig('maintenance') == "true") {
-            return $this->redirectToRoute('app_maintenance');
-        }
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-        if (!$user->getNature()) {
-            return $this->redirectToRoute('app_user_determine_nature');
-        }
-        
-        // dump($forestResources);
+    private function getFinalMap($positionRepository, $forestResourceRepository){
         $formattedField = [];
         
         $forestPosition = $positionRepository->findOneBy(["type" => "forêt"]);
@@ -104,19 +94,66 @@ class ForestController extends AbstractController
                 ];
             }
         }
+        $finalMap = ["map" => $this->mergeFieldAndResources($formattedField, $formattedResources), "x" => $x, "y" => $y];
 
-        $finalResources = $this->mergeFieldAndResources($formattedField, $formattedResources);
+        return $finalMap;
+    }
+
+    #[Route('/carte/{jackpot}', name: 'app_forest_map')]
+    public function map(ForestResourceRepository $forestResourceRepository, RessourceRepository $ressourceRepository, AppService $appService, PositionRepository $positionRepository, $jackpot = null): Response
+    {
+        if ($appService->getConfig('maintenance') == "true") {
+            return $this->redirectToRoute('app_maintenance');
+        }
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        if (!$user->getNature()) {
+            return $this->redirectToRoute('app_user_determine_nature');
+        }
+        
+        // dump($forestResources);
+        // $formattedField = [];
+        
+        // $forestPosition = $positionRepository->findOneBy(["type" => "forêt"]);
+        // $x = $forestPosition->getX();
+        // $y = $forestPosition->getY();
+        // $formattedResources = $this->getCards($x, $y, $forestResourceRepository);
+        
+        // // on crée le sol sans ressources
+        // for ($xField = $x - 1 ; $xField <= $x + 1 ; $xField++){
+        //     for ($yField = $y - 1 ; $yField <= $y + 1 ; $yField++){
+        //         $fieldNumber = random_int(1, 10);
+        //         $formattedField[] = [
+        //             'id' => null,
+        //             'gain' => 0,
+        //             'type' => "field",
+        //             'x' => $xField,
+        //             'y' => $yField,
+        //             'image_url' => "forest/icons/sol " . $fieldNumber . ".jpg", // ex: 'icons/wood.png'
+        //             'isResource' => false
+        //         ];
+        //     }
+        // }
+
+        // $finalResources = $this->mergeFieldAndResources($formattedField, $formattedResources);
+        $finalResources = $this->getFinalMap($positionRepository, $forestResourceRepository);
         $resources = $this->getResources($ressourceRepository, $user);
         // dump($resources);
 
         return $this->render('forest/index.html.twig', [
-            'forestResources' => $finalResources,
+            'forestResources' => $finalResources["map"],
             'jackpot' => $jackpot,
-            'resources' => $resources
+            'resources' => $resources,
+            "x" => $finalResources["x"],
+            "y" => $finalResources["y"],
+
         ]);
     }
-    #[Route('/carte/navigation/{jackpot}/{direction}', name: 'app_forest_map_navigate')]
-    public function navigateMap(ForestResourceRepository $forestResourceRepository, AppService $appService, PositionRepository $positionRepository, RessourceRepository $ressourceRepository, EntityManagerInterface $entityManager, $direction, $jackpot = null): Response{
+    #[Route('/carte/navigation/{direction}', name: 'app_forest_map_navigate')]
+    public function navigateMap(ForestResourceRepository $forestResourceRepository, AppService $appService, PositionRepository $positionRepository, RessourceRepository $ressourceRepository, EntityManagerInterface $entityManager, $direction): Response{
         if ($appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
@@ -151,13 +188,16 @@ class ForestController extends AbstractController
         }
         $entityManager->persist($forestPosition);
         $entityManager->flush();
-        $newCards = $this->getCards($x, $y, $forestResourceRepository);
-        $resources = $this->getResources($ressourceRepository, $user);
-        return $this->render('forest/index.html.twig', [
-            'forestResources' => $newCards,
-            'jackpot' => $jackpot,
-            'resources' => $resources
-        ]);
+        // $newCards = $this->getCards($x, $y, $forestResourceRepository);
+        // $resources = $this->getResources($ressourceRepository, $user);
+        $newCards = $this->getFinalMap($positionRepository, $forestResourceRepository);
+        return new JsonResponse(['forestResources' => $newCards["map"], "x" => $newCards["x"],
+            "y" => $newCards["y"],]);
+        // return $this->render('forest/index.html.twig', [
+        //     'forestResources' => $newCards,
+        //     // 'jackpot' => $jackpot,
+        //     'resources' => $resources
+        // ]);
     }
     #[Route('/recolter/{type}/{id}', name: 'app_forest_harvest')]
     public function harvest(ForestResource $forestResource, AppService $appService, $type, RessourceRepository $ressourceRepository, EntityManagerInterface $entityManager): Response{

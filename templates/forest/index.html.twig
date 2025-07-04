@@ -68,6 +68,8 @@
 {% endblock %}
 {% block script %}
 <script>
+    let currentX = {{ x|json_encode|raw }}; // Coordonnée initiale (centre de la carte)
+    let currentY = {{ y|json_encode|raw }};
     let resources = {{ forestResources|json_encode|raw }};
     window.baseImagePath = "{{ asset('images/') }}";
 </script>

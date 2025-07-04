@@ -1,5 +1,5 @@
-let currentX = 50; // Coordonnée initiale (centre de la carte)
-let currentY = 50;
+// let currentX = 47; // Coordonnée initiale (centre de la carte)
+// let currentY = 50;
 
 function addResource(type, gain, spanId) {
   // jouer le son de la récolte
@@ -18,9 +18,9 @@ function displayGrid(x, y, resources) {
   const endX = x + 1;
   const endY = y + 1;
 
-  //   console.log("x", startX);
-  //   console.log("y", startY);
-  //   console.log(resources);
+    console.log("x", startX);
+    console.log("y", startY);
+    console.log(resources);
 
   //   const pageResources = resources.filter(
   //     (r) => r.x >= startX && r.x <= endX && r.y >= startY && r.y <= endY
@@ -29,13 +29,15 @@ function displayGrid(x, y, resources) {
   let offsetCoord = 140;
 
   resources.forEach((resource) => {
-    // console.log("resource at", resource.x, resource.y);
+    console.log("resource at", resource.x, resource.y);
     // let posX = resource.x * 6 + 30;
     // let posY = resource.y * 6 + 30;
     let posX = 70 + (resource.x - startX) * offsetCoord;
     let posY = 70 + (resource.y - startY) * offsetCoord;
+    // let posX = 70 + (resource.x - x) * offsetCoord;
+    // let posY = 70 + (resource.y - y) * offsetCoord;
     // console.log(resource.y);
-    // console.log(startY)
+    console.log(startX)
     // console.log(posY);
     let imgSrc = window.baseImagePath + resource.image_url;
 
@@ -142,14 +144,14 @@ function displayGrid(x, y, resources) {
 
 function checkNavigationButtons() {
   // Masquer le bouton "Gauche" si on est déjà à la limite gauche
-  if (currentX <= 0) {
+  if (currentX <= 2) {
     $("#prev-left").hide();
   } else {
     $("#prev-left").show();
   }
 
   // Masquer le bouton "Haut" si on est déjà à la limite haute
-  if (currentY <= 0) {
+  if (currentY <= 2) {
     $("#prev-up").hide();
   } else {
     $("#prev-up").show();
@@ -326,18 +328,38 @@ $(document).ready(function () {
     });
   });
 
+  function navigate(direction){
+    $.ajax({
+      url: "carte/navigation/" + direction,
+      method: "GET", // ou POST selon ta route
+      success: function (response) {
+        
+          // $("#" + type + "-resource").text(
+          //   type + " : " + response.typeValue.toLocaleString("fr-FR")
+          // );
+          // $("#exp").text("Expérience : " + response.exp);
+          // startCountdown($button, $counter, response.cooldown);
+        displayGrid(currentX, currentY, response.forestResources);
+      },
+      error: function (err) {
+        console.error("Erreur AJAX :", err);
+      },
+    });
+  }
+
   $("#prev-left").click(function () {
     if (currentX > 0) {
       currentX -= 3;
-
-      displayGrid(currentX, currentY);
+      navigate("left");
+      
     }
   });
 
   $("#prev-up").click(function () {
     if (currentY > 0) {
       currentY -= 3;
-      displayGrid(currentX, currentY);
+      navigate("up");
+      // displayGrid(currentX, currentY, resources);
     }
   });
 
@@ -345,7 +367,8 @@ $(document).ready(function () {
     if (currentX < 97) {
       // Limite à 90 pour ne pas dépasser 100 cases
       currentX += 3;
-      displayGrid(currentX, currentY);
+      navigate("right");
+      // displayGrid(currentX, currentY, resources);
     }
   });
 
@@ -353,7 +376,8 @@ $(document).ready(function () {
     if (currentY < 97) {
       // Limite à 90 pour ne pas dépasser 100 cases
       currentY += 3;
-      displayGrid(currentX, currentY);
+      navigate("down");
+      // displayGrid(currentX, currentY, resources);
     }
   });
   // récupérer les nouvelles cases et sauvegarder la nouvelle position
