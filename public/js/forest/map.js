@@ -2,6 +2,8 @@ let currentX = 50; // Coordonnée initiale (centre de la carte)
 let currentY = 50;
 
 function addResource(type, gain, spanId) {
+  // jouer le son de la récolte
+    $("#harvest-sound")[0].play();
   const $resource = $("#" + type + "-resource");
   const value = parseInt($resource.html());
   $resource.html(value + gain);
@@ -44,13 +46,34 @@ function displayGrid(x, y, resources) {
           position: "absolute",
           left: posX + "px",
           top: posY + "px",
-          cursor: resource.isResource ? "pointer" : "inherit",
+          // cursor: resource.isResource ? "pointer" : "inherit",
+        },
+        attr: {
+          "data-id": resource.id,
+          
+          "data-type": resource.type,
+        },
+      });
+
+      let img = $("<img />", {
+        src: imgSrc,
+        class: "resource-icon",
+        css: {
+        //   left: posX  + "px",
+        //   top: posY  + "px",
+          cursor: resource.isResource ? "pointer" : "inherit"
         },
         attr: {
           "data-id": resource.id,
           "data-url": "/foret/recolter/" + resource.type + "/" + resource.id,
-          "data-type": resource.type,
-        },
+          "data-type": resource.type
+        }
+        // })
+        // .on("click", function () {
+        // Action au clic ici
+        // console.log("Image cliquée :", resource);
+        // Par exemple, afficher des infos ou déclencher un événement
+        // addResource(resource.type, resource.gain);
       }).on("click", function () {
         addResource(
           resource.type,
@@ -58,28 +81,7 @@ function displayGrid(x, y, resources) {
           "#counter-harvest-" + resource.id
         );
       });
-
-      let img = $("<img />", {
-        src: imgSrc,
-        class: "resource-icon",
-        // css: {
-        //   left: posX  + "px",
-        //   top: posY  + "px",
-        //   cursor: resource.isResource ? "pointer" : "inherit"
-        // },
-        // attr: {
-        //   "data-id": resource.id,
-        //   "data-url": '/foret/harvest/' + resource.id + "/" + resource.type,
-        //   "data-type": resource.type
-        // }
-        // })
-        // .on("click", function () {
-        // Action au clic ici
-        // console.log("Image cliquée :", resource);
-        // Par exemple, afficher des infos ou déclencher un événement
-        // addResource(resource.type, resource.gain);
-      });
-      let countDown = $("<span>", {
+      let countDown = $("<div>", {
         id: "counter-harvest-" + resource.id,
         class: "", // tu peux styliser ça
         text: "", // ou un compte à rebours si tu veux
@@ -88,6 +90,9 @@ function displayGrid(x, y, resources) {
           // "data-url": '/foret/harvest/' + resource.id + "/" + resource.type,
           // "data-type": resource.type
         },
+        css: {
+          "pointer-events": "none" // ici on bloque les interactions
+        }
       });
       container.append(img).append(countDown);
       $("#map-container").append(container);
@@ -255,6 +260,8 @@ function startCountdown( $button, $counter, cooldown ) {
 		if ( timeLeft <= 0 ) {
 			clearInterval( interval );
 			// $counter.text('Disponible !');
+      $('img').css('pointer-events', 'auto');
+      // $button.css('pointer-events', 'auto');
 			$button.show();
 			$counter.text('');
 		}
@@ -267,10 +274,11 @@ $(document).ready(function () {
 
   $(".resource-icon-harvestable").click(function () {
     const $button = $(this).find("img");
-    // jouer le son de la récolte
-    $("#harvest-sound")[0].play();
+    
     // au lieu de cacher, mettre compte à rebours
     $button.hide();
+    $('img').css('pointer-events', 'none');
+    // $button.css('pointer-events', 'none');
     const id = $button.data("id");
     const url = $button.data("url");
     const gain = $button.data("gain");
