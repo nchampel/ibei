@@ -41,6 +41,7 @@ class ForestController extends AbstractController
         // trouver ressources récoltables
         commentaire pas sûr
         */
+        /** @var \App\Entity\ForestResource[] $forestResources */
         $forestResources = $forestResourceRepository->findDisplayable();
         $formattedResources = [];
         foreach ($forestResources as $resource) {
@@ -51,11 +52,16 @@ class ForestController extends AbstractController
 
                 $formattedResources[] = [
                     'id' => $resource->getId(),
-                    'gain' => $resource->getGain(),
+                    'gain' => $resource->getForestResource()->getGain(),
                     'type' => $resource->getForestResource()->getGainType(),
                     'x' => $resource->getX(),
                     'y' => $resource->getY(),
-                    'image_url' => $resource->getForestResource()->getImageUrl(), // ex: 'icons/wood.png'
+                    'image_url' => $resource->getForestResource()->getImageUrl(), // ex: 'icons/wood.png',
+                    'harvestTime' => $resource->getForestResource()->getHarvestTime(),
+                    // 'harvestTime' => $resource->getForestResource()->getHarvestTime(),
+                    'userId' => $resource->getUser(),
+                    'claimedAt' => $resource->getClaimedAt(),
+                    'nextAvailableAt' => $resource->getNextAvailableAt(),
                     'isResource' => true
                 ];
             }
@@ -69,6 +75,19 @@ class ForestController extends AbstractController
             $resources[$resourceBDD->getType()] = $resourceBDD->getValue();
         }
         return $resources;
+
+    }
+    private function checkResources($x, $y, $resources){
+        foreach($resources as $resource){
+            if(!is_null($resource["userId"])){
+                // voir si resource à ajouter aux joueurs
+
+                // enlever le joueur de la ressource
+            } else {
+                // on regarde si la ressource doit repoper
+            }
+        }
+        // on retourne le tableau des ressources mis à jour
     }
 
     private function getFinalMap($positionRepository, $forestResourceRepository){
@@ -78,6 +97,7 @@ class ForestController extends AbstractController
         $x = $forestPosition->getX();
         $y = $forestPosition->getY();
         $formattedResources = $this->getCards($x, $y, $forestResourceRepository);
+
         
         // on crée le sol sans ressources
         for ($xField = $x - 1 ; $xField <= $x + 1 ; $xField++){
@@ -94,6 +114,13 @@ class ForestController extends AbstractController
                 ];
             }
         }
+        
+        if(count($formattedResources) == 0) {
+            return ["map" => $formattedField, "x" => $x, "y" => $y];
+        }
+
+        // si ressource sur la carte 9x9, on vérifie si récolté, qui dessus etc.
+
         $finalMap = ["map" => $this->mergeFieldAndResources($formattedField, $formattedResources), "x" => $x, "y" => $y];
 
         return $finalMap;
@@ -204,7 +231,7 @@ class ForestController extends AbstractController
         if ($appService->getConfig('maintenance') == "true") {
             return $this->redirectToRoute('app_maintenance');
         }
-        $gain = $forestResource->getGain();
+        $gain = $forestResource->getForestResource()->getGain();
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
         if (!$user) {
@@ -218,13 +245,16 @@ class ForestController extends AbstractController
 
         $isClaimable = $forestResource->getIsClaimable();
         if (!$isClaimable) {
-            return new JsonResponse(['isClaimable' => false, 'value' => $resourceValue, 'cooldown' => $forestResource->getCooldown()]);
+            return new JsonResponse(['isClaimable' => false, 'value' => $resourceValue, 'cooldown' => $forestResource->getForestResource()->getCooldown()]);
         } else {
             $newValue = $resourceValue + $gain;
             $resourceBDD->setValue($newValue);
             // $user->setMoney($newMoney);
             $exp = $user->getExp();
             // $expPurchase = $purchase->getProduct->getExp();
+
+            $forestResource->setUser($user);
+
             $expHarvest = 2;
             $newExp = $exp + $expHarvest;
             $user->setExp($newExp);
@@ -240,7 +270,7 @@ class ForestController extends AbstractController
                 'isClaimable' => true,
                 "type" => $type,
                 "typeValue" => $newValue,
-                'cooldown' => $forestResource->getCooldown(),
+                'cooldown' => $forestResource->getForestResource()->getCooldown(),
                 'exp' => $newExp,
             ]);
         }

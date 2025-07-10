@@ -29,12 +29,6 @@ class ForestResource
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    private ?int $cooldown = null;
-
-    #[ORM\Column]
-    private ?int $gain = null;
-
     #[ORM\Column(nullable: true)]
     private ?int $x = null;
 
@@ -52,6 +46,9 @@ class ForestResource
     private bool $isClaimable = true;
     private int $remainedSeconds;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $nextAvailableAt = null;
+
     public function updateRemainedSeconds(){
         $claimedAtBDD = $this->getClaimedAt();
 
@@ -64,7 +61,7 @@ class ForestResource
         $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $nowSecondes = $now->getTimestamp();
 
-        $this->setRemainedSeconds($this->getCooldown() - ($nowSecondes - $claimedAt));
+        $this->setRemainedSeconds($this->getForestResource()->getCooldown() - ($nowSecondes - $claimedAt));
     } else {
         $this->setRemainedSeconds(0);
     }
@@ -85,8 +82,8 @@ class ForestResource
         $nowSecondes = $now->getTimestamp();
 
         // Comparer la différence entre les timestamps (en secondes)
-        $this->setIsClaimable($nowSecondes - $claimedAt >= $this->getCooldown());
-        return $nowSecondes - $claimedAt >= $this->getCooldown();
+        $this->setIsClaimable($nowSecondes - $claimedAt >= $this->getForestResource()->getCooldown());
+        return $nowSecondes - $claimedAt >= $this->getForestResource()->getCooldown();
     } else {
         // Si pas de 'claimedAt', c'est claimable
         $this->setIsClaimable(true);
@@ -153,30 +150,6 @@ public function getIsClaimable(): bool
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getCooldown(): ?int
-    {
-        return $this->cooldown;
-    }
-
-    public function setCooldown(int $cooldown): static
-    {
-        $this->cooldown = $cooldown;
-
-        return $this;
-    }
-
-    public function getGain(): ?int
-    {
-        return $this->gain;
-    }
-
-    public function setGain(int $gain): static
-    {
-        $this->gain = $gain;
 
         return $this;
     }
@@ -264,6 +237,18 @@ public function getIsClaimable(): bool
     public function setRemainedSeconds($remainedSeconds)
     {
         $this->remainedSeconds = $remainedSeconds;
+
+        return $this;
+    }
+
+    public function getNextAvailableAt(): ?\DateTimeInterface
+    {
+        return $this->nextAvailableAt;
+    }
+
+    public function setNextAvailableAt(?\DateTimeInterface $nextAvailableAt): static
+    {
+        $this->nextAvailableAt = $nextAvailableAt;
 
         return $this;
     }

@@ -42,6 +42,9 @@ class ForestResourceInfos
     #[ORM\Column(length: 100)]
     private ?string $imageUrl = null;
 
+    #[ORM\Column]
+    private ?int $harvestTime = null;
+
     public function __construct()
     {
         $this->forestResources = new ArrayCollection();
@@ -174,6 +177,18 @@ class ForestResourceInfos
     public function setImageUrl(string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function getHarvestTime(): ?int
+    {
+        return $this->harvestTime;
+    }
+
+    public function setHarvestTime(int $harvestTime): static
+    {
+        $this->harvestTime = $harvestTime;
 
         return $this;
     }
