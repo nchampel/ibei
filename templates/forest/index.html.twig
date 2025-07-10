@@ -44,26 +44,39 @@
   height: 100px;
   }
 
+  .popup {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    z-index: 1000;
+}
+
 </style>
     <div class="p-2 mb-4 custom-bg-app custom-border-radius box-shadow-custom custom-max-width">
         <p>Champignon : <span id="champignon-resource">{{ resources.champignon }}</span><p>
+        <p>X : <span id="position-x">{{ x }}</span><p>
+        <p>Y : <span id="position-y">{{ y }}</span><p>
     </div>
 
     <div class="text-center mb-4">
-        <button id="prev-up">⬆️ Haut</button>
+        <button id="prev-up" class="navigation-button">⬆️ Haut</button>
     </div>
     <div class="d-flex justify-content-center align-items-center margin-auto-center" style="max-width: 900px">
         <div class="">
-            <button id="prev-left">⬅️ Gauche</button>
+            <button id="prev-left" class="navigation-button">⬅️ Gauche</button>
         </div>
         <div id="map-container"></div>
         <div class="">
-            <button id="next-right">Droite ➡️</button>
+            <button id="next-right" class="navigation-button">Droite ➡️</button>
         </div>
     </div>
     <div class="text-center mt-4">
-    <button id="next-down">Bas ⬇️</button>
+    <button id="next-down" class="navigation-button">Bas ⬇️</button>
     </div>
+    
     <audio id="harvest-sound" src="{{ asset('sounds/485718__spacejoe__coin-drop-2.wav') }}"></audio>
 {% endblock %}
 {% block script %}
