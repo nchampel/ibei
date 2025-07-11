@@ -135,7 +135,7 @@
 							<button id="harvest-btn-{{ purchase.id }}" data-id={{ purchase.id }}
 									data-url="{{ path('harvest', {id: purchase.id }) }}" data-gain={{ purchase.gain}} class="harvest-button animate-button-harvest harvest-btn">Récolter</button>
 							{% else %}
-								<p class="fw-600" id="remained-seconds-harvest-{{ purchase.id }}" data-id={{ purchase.id }} data-cooldown={{ purchase.cooldown }}>{{ purchase.remainedSeconds | duration_format }}</p>
+								<p class="fw-600" id="remained-seconds-harvest-{{ purchase.id }}" data-id={{ purchase.id }} data-cooldown={{ purchase.cooldown }}>{{ purchase.remainedSecondsPop | duration_format }}</p>
 							{% endif %}
 						</div>
 						<div class="stats p-2">
@@ -286,7 +286,7 @@ $( document ).ready( function () {
 		let counterValueTemp = $( this ).text();
 		let counterValue = convertToSeconds( counterValueTemp );
 		let $counter = $( this );
-		let $remainedSeconds = $('#remained-seconds-harvest-' + id);
+		let $remainedSecondsGain = $('#remained-seconds-harvest-' + id);
 		// convertir hh:mm:ss en barre de décompte
 		const $bar = $( '<div class="custom-cooldown-bar-refresh"></div>' );
 		const $text = $( '<div class="custom-cooldown-text"></div>' );
@@ -295,7 +295,7 @@ $( document ).ready( function () {
 		$counter.html( $container );
 
 		let timeLeft = counterValue;
-		const total = $remainedSeconds.data( 'cooldown' );
+		const total = $remainedSecondsGain.data( 'cooldown' );
 		// const total = convertToSeconds($remainedSeconds.data( 'cooldown' ));
 		// console.log(total);
 		$bar.css( 'width', ( ( total - timeLeft ) / total ) * 100 + '%' );

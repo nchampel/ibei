@@ -245,7 +245,7 @@ class ForestController extends AbstractController
 
         $isClaimable = $forestResource->getIsClaimable();
         if (!$isClaimable) {
-            return new JsonResponse(['isClaimable' => false, 'value' => $resourceValue, 'cooldown' => $forestResource->getForestResource()->getCooldown()]);
+            return new JsonResponse(['isClaimable' => false, 'value' => $resourceValue, 'cooldown' => $forestResource->getForestResource()->getHarvestTime()]);
         } else {
             $newValue = $resourceValue + $gain;
             $resourceBDD->setValue($newValue);
@@ -270,8 +270,70 @@ class ForestController extends AbstractController
                 'isClaimable' => true,
                 "type" => $type,
                 "typeValue" => $newValue,
-                'cooldown' => $forestResource->getForestResource()->getCooldown(),
+                'cooldown' => $forestResource->getForestResource()->getHarvestTime(),
                 'exp' => $newExp,
+            ]);
+        }
+    }
+    #[Route('/recolter/temps/{type}/{id}', name: 'app_forest_harvest_time')]
+    public function harvestTime(ForestResource $forestResource, AppService $appService, $type, RessourceRepository $ressourceRepository, EntityManagerInterface $entityManager): Response{
+        if ($appService->getConfig('maintenance') == "true") {
+            return $this->redirectToRoute('app_maintenance');
+        }
+        // $gain = $forestResource->getForestResource()->getGain();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        if (!$user->getNature()) {
+            return $this->redirectToRoute('app_user_determine_nature');
+        }
+        $resourceBDD = $ressourceRepository->findOneBy(['user' => $user, 'type' => $type]);
+        $resourceValue = $resourceBDD->getValue();
+
+        $isClaimable = $forestResource->getIsClaimable();
+        if (!$isClaimable) {
+            return new JsonResponse(['isClaimable' => false, 'value' => $resourceValue, 'cooldown' => $forestResource->getForestResource()->getHarvestTime()]);
+        } else {
+
+            return new JsonResponse([
+                'isClaimable' => true,
+                "type" => $type,
+                // "typeValue" => $resourceValue,
+                'cooldown' => $forestResource->getForestResource()->getHarvestTime(),
+                // 'exp' => $newExp,
+            ]);
+        }
+    }
+    #[Route('/repop/{type}/{id}', name: 'app_forest_repop')]
+    public function repop(ForestResource $forestResource, AppService $appService, $type, RessourceRepository $ressourceRepository, EntityManagerInterface $entityManager): Response{
+        if ($appService->getConfig('maintenance') == "true") {
+            return $this->redirectToRoute('app_maintenance');
+        }
+        // $gain = $forestResource->getForestResource()->getGain();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        if (!$user->getNature()) {
+            return $this->redirectToRoute('app_user_determine_nature');
+        }
+        $resourceBDD = $ressourceRepository->findOneBy(['user' => $user, 'type' => $type]);
+        $resourceValue = $resourceBDD->getValue();
+
+        $isClaimable = $forestResource->getIsClaimable();
+        if (!$isClaimable) {
+            return new JsonResponse(['isClaimable' => false, 'value' => $resourceValue, 'cooldown' => $forestResource->getForestResource()->getHarvestTime()]);
+        } else {
+
+            return new JsonResponse([
+                'isClaimable' => true,
+                "type" => $type,
+                // "typeValue" => $resourceValue,
+                'cooldown' => $forestResource->getForestResource()->getHarvestTime(),
+                // 'exp' => $newExp,
             ]);
         }
     }

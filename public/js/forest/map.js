@@ -111,6 +111,8 @@ function displayGrid(x, y, resources) {
         attr: {
           "data-id": resource.id,
           "data-url": "/foret/recolter/" + resource.type + "/" + resource.id,
+          "data-url-time":
+            "/foret/recolter/temps/" + resource.type + "/" + resource.id,
           "data-action": "récolte",
         },
         // css: {
@@ -166,16 +168,16 @@ function displayGrid(x, y, resources) {
       let img = $("<img />", {
         src: imgSrc,
         class: "resource-icon",
-        
+
         // css: {
         //   left: posX  + "px",
         //   top: posY  + "px",
         //   cursor: resource.isResource ? "pointer" : "inherit"
         // },
         attr: {
-          "data-url": '/foret/harvest/' + resource.id + "/" + resource.type,
-          "data-type": resource.type
-        }
+          "data-url": "/foret/harvest/" + resource.id + "/" + resource.type,
+          "data-type": resource.type,
+        },
         // })
         // .on("click", function () {
         // Action au clic ici
@@ -194,13 +196,14 @@ function displayGrid(x, y, resources) {
 // getNewResources();
 
 function getNewResources(resourceId, action, $button) {
-  $(".harvest-button-forest").click(function () {
-    const $button = $(this);
+  // $(".harvest-button-forest").click(function () {
+    // const $button = $(this);
     // jouer le son de la récolte
     $("#harvest-sound")[0].play();
     // $button.hide();
     const id = $button.data("id");
     const url = $button.data("url");
+    const urlTime = $button.data("url-time");
     const gain = $button.data("gain");
     const type = $button.data("type");
     const $counter = $("#compteur-harvest-" + id);
@@ -228,64 +231,64 @@ function getNewResources(resourceId, action, $button) {
       );
 
     // Appel AJAX vers la route Symfony
-  //   $.ajax({
-  //     url: url,
-  //     method: "GET", // ou POST selon ta route
-  //     success: function (response) {
-  //       if (response.isClaimable) {
-  //         $("#" + type + "-resource").text(
-  //           type + " : " + response.typeValue.toLocaleString("fr-FR")
-  //         );
-  //         $("#exp").text("Expérience : " + response.exp);
-  //         // à implémenter
-  //         startCountdown($button, $counter, response.cooldown, resourceId);
-  //       }
-  //     },
-  //     error: function (err) {
-  //       console.error("Erreur AJAX :", err);
-  //     },
-  //   });
+    //   $.ajax({
+    //     url: url,
+    //     method: "GET", // ou POST selon ta route
+    //     success: function (response) {
+    //       if (response.isClaimable) {
+    //         $("#" + type + "-resource").text(
+    //           type + " : " + response.typeValue.toLocaleString("fr-FR")
+    //         );
+    //         $("#exp").text("Expérience : " + response.exp);
+    //         // à implémenter
+    //         startCountdown($button, $counter, response.cooldown, resourceId);
+    //       }
+    //     },
+    //     error: function (err) {
+    //       console.error("Erreur AJAX :", err);
+    //     },
+    //   });
+    // });
+    $.ajax({
+      url: urlTime,
+      method: "GET", // ou "POST" selon ton backend
+      success: function (response) {
+        // Traitement spécifique pour la récolte
+        if (action === "récolte") {
+          const type = response.type;
+          // $("#" + type + "-resource").text(
+          //   type + " : " + response.typeValue.toLocaleString("fr-FR")
+          // );
+          // $("#exp").text("Expérience : " + response.exp);
+
+          // // Si tu veux lancer un cooldown sur le bouton
+          const $counter = $("#counter-harvest-" + resourceId);
+          const $img = $("#img-resource-" + resourceId);
+          // console.log(resourceId)
+          // console.log($img)
+          $img.hide();
+          $("#popup-harvest-" + resourceId).hide();
+
+          // const $img = $("img[data-id='" + response.resourceId + "']");
+          startCountdown($button, $counter, response.cooldown, resourceId, url);
+        }
+
+        // Traitement pour "marquer", si besoin, ou juste un log
+        if (action === "marquer") {
+          console.log("Ressource marquée !");
+          // Tu peux aussi mettre une animation, icône, etc.
+        }
+      },
+      error: function (err) {
+        console.error("Erreur AJAX :", err);
+      },
+      complete: function () {
+        // Fermer le popup quoi qu'il arrive (succès ou erreur)
+        $(this).closest(".popup").hide();
+      },
+    });
   // });
-  $.ajax({
-    url: url,
-    method: "GET", // ou "POST" selon ton backend
-    success: function (response) {
-      // Traitement spécifique pour la récolte
-      if (action === "récolte") {
-        const type = response.type;
-        $("#" + type + "-resource").text(
-          type + " : " + response.typeValue.toLocaleString("fr-FR")
-        );
-        $("#exp").text("Expérience : " + response.exp);
-
-        // // Si tu veux lancer un cooldown sur le bouton
-        const $counter = $("#counter-harvest-" + resourceId);
-        const $img = $("#img-resource-" + resourceId);
-        console.log(resourceId)
-        console.log($img)
-        $img.hide();
-        $("#popup-harvest-" + resourceId).hide();
-
-        // const $img = $("img[data-id='" + response.resourceId + "']");
-        startCountdown($button, $counter, response.cooldown, resourceId);
-      }
-
-      // Traitement pour "marquer", si besoin, ou juste un log
-      if (action === "marquer") {
-        console.log("Ressource marquée !");
-        // Tu peux aussi mettre une animation, icône, etc.
-      }
-    },
-    error: function (err) {
-      console.error("Erreur AJAX :", err);
-    },
-    complete: function () {
-      // Fermer le popup quoi qu'il arrive (succès ou erreur)
-      $(this).closest(".popup").hide();
-    }
-  });
 }
-)};
 
 function formatTime(seconds) {
   const hours = Math.floor(seconds / 3600); // Nombre d'heures
@@ -303,7 +306,49 @@ function formatTime(seconds) {
   );
 }
 
-function startCountdown($button, $counter, cooldown, resourceId) {
+function addResourceAfterWaiting(url, $counter) {
+  $.ajax({
+    url: url,
+    method: "GET", // ou "POST" selon ton backend
+    success: function (response) {
+      // Traitement spécifique pour la récolte
+
+      const type = response.type;
+      $("#" + type + "-resource").text(
+        response.typeValue.toLocaleString("fr-FR")
+      );
+      $("#exp").text("Expérience : " + response.exp);
+
+      $counter.addClass("custom-bg-app").css({"position": "absolute",
+          "left": "-60px",
+          // "top": "0px"
+        }).text(type);
+
+
+      // // Si tu veux lancer un cooldown sur le bouton
+      // const $counter = $("#counter-harvest-" + resourceId);
+      // const $img = $("#img-resource-" + resourceId);
+      // console.log(resourceId)
+      // console.log($img)
+      // $img.hide();
+      // $("#popup-harvest-" + resourceId).hide();
+
+      // const $img = $("img[data-id='" + response.resourceId + "']");
+      // startCountdown($button, $counter, response.cooldown, resourceId);
+
+      // Traitement pour "marquer", si besoin, ou juste un log
+    },
+    error: function (err) {
+      console.error("Erreur AJAX :", err);
+    },
+    // complete: function () {
+    //   // Fermer le popup quoi qu'il arrive (succès ou erreur)
+    //   $(this).closest(".popup").hide();
+    // },
+  });
+}
+
+function startCountdown($button, $counter, cooldown, resourceId, url) {
   // $button.hide(); // Masquer le bouton
   $counter.show();
 
@@ -332,8 +377,9 @@ function startCountdown($button, $counter, cooldown, resourceId) {
       // $button.css('pointer-events', 'auto');
       // $button.show();
       const $img = $("#img-resource-" + resourceId);
-      $img.show();
+      // $img.show(); à mettre pour repop ressource
       $counter.text("");
+      addResourceAfterWaiting(url, $counter);
     }
   }, 1000);
 }
@@ -371,7 +417,7 @@ $(document).on("click", ".harvest-button-forest", function () {
   const resourceId = $(this).data("id");
   console.log("Action choisie : " + action);
   console.log(url);
-  getNewResources(resourceId, action, $(this))
+  getNewResources(resourceId, action, $(this));
   // $(this).closest(".popup").hide();
 
   //  $.ajax({
@@ -410,7 +456,6 @@ $(document).on("click", ".harvest-button-forest", function () {
   //   }
   // });
 });
-
 
 // navigation
 $(document).ready(function () {

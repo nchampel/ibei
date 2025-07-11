@@ -44,62 +44,104 @@ class ForestResource
     }
 
     private bool $isClaimable = true;
-    private int $remainedSeconds;
+    private int $remainedSecondsPop;
+    private int $remainedSecondsGain;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $nextAvailableAt = null;
 
-    public function updateRemainedSeconds(){
+    // pour le gain de la ressource
+    public function updateRemainedSecondsGain(){
         $claimedAtBDD = $this->getClaimedAt();
 
-    if ($claimedAtBDD) {
-        // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
-        $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
-        $claimedAt = $claimedAtBDD->getTimestamp();
+        if ($claimedAtBDD) {
+            // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
+            $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
+            $claimedAt = $claimedAtBDD->getTimestamp();
 
-        // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
-        $nowSecondes = $now->getTimestamp();
+            // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
+            $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+            $nowSecondes = $now->getTimestamp();
+            $difference = $this->getForestResource()->getHarvestTime() - ($nowSecondes - $claimedAt);
+            if ($difference > 0) {
 
-        $this->setRemainedSeconds($this->getForestResource()->getCooldown() - ($nowSecondes - $claimedAt));
-    } else {
-        $this->setRemainedSeconds(0);
+                $this->setRemainedSecondsGain($difference);
+            } else {
+                $this->setClaimedAt(null);
+
+                // sauvegarder
+                return "ressource récoltée";
+            }
+        } else {
+            $this->setRemainedSecondsGain(0);
+            return "";
+        }
     }
+
+    // pour le repop de la ressource
+    public function updateRemainedSecondsPop()
+    {
+        $claimedAtBDD = $this->getClaimedAt();
+
+        if ($claimedAtBDD) {
+            // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
+            $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
+            $claimedAt = $claimedAtBDD->getTimestamp();
+
+            // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
+            $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+            $nowSecondes = $now->getTimestamp();
+            $difference = $this->getForestResource()->getCooldown() - ($nowSecondes - $claimedAt);
+            if ($difference > 0) {
+
+                $this->setRemainedSecondsPop($difference);
+            } else {
+                $this->setClaimedAt(null);
+                // sauvegarder
+            }
+        } else {
+            $this->setRemainedSecondsPop(0);
+        }
     }
 
     public function updateIsClaimable(): bool
-{
-    // Récupérer la date 'claimedAt' en UTC depuis la base de données
-    $claimedAtBDD = $this->getClaimedAt();
+    {
+        // Récupérer la date 'claimedAt' en UTC depuis la base de données
+        $claimedAtBDD = $this->getClaimedAt();
+        
+        $nextAvailableAtBDD = $this->getNextAvailableAt();
 
-    if ($claimedAtBDD) {
-        // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
-        $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
-        $claimedAt = $claimedAtBDD->getTimestamp();
+        if ($claimedAtBDD) {
+            // Convertir 'claimedAt' en UTC si ce n'est pas déjà le cas
+            $claimedAtBDD->setTimezone(new \DateTimeZone('UTC'));
+            $claimedAt = $claimedAtBDD->getTimestamp();
+            
+            $nextAvailableAtBDD->setTimezone(new \DateTimeZone('UTC'));
+            $nextAvailableAt = $nextAvailableAtBDD->getTimestamp();
 
-        // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
-        $nowSecondes = $now->getTimestamp();
+            // Obtenir la date actuelle avec le fuseau horaire 'Europe/Paris'
+            $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+            $nowSecondes = $now->getTimestamp();
 
-        // Comparer la différence entre les timestamps (en secondes)
-        $this->setIsClaimable($nowSecondes - $claimedAt >= $this->getForestResource()->getCooldown());
-        return $nowSecondes - $claimedAt >= $this->getForestResource()->getCooldown();
-    } else {
-        // Si pas de 'claimedAt', c'est claimable
-        $this->setIsClaimable(true);
-        return true;
+            // Comparer la différence entre les timestamps (en secondes)
+            $this->setIsClaimable($nowSecondes - $nextAvailableAt >= 0);
+            return $nowSecondes - $nextAvailableAt >= 0;
+        } else {
+            // Si pas de 'claimedAt', c'est claimable
+            $this->setIsClaimable(true);
+            return true;
+        }
     }
-}
 
-/**
- * Get the value of isClaimable
- *
- * @return bool
- */
-public function getIsClaimable(): bool
-{
-    return $this->isClaimable;
-}
+    /**
+     * Get the value of isClaimable
+     *
+     * @return bool
+     */
+    public function getIsClaimable(): bool
+    {
+        return $this->isClaimable;
+    }
 
     public function getId(): ?int
     {
@@ -222,21 +264,40 @@ public function getIsClaimable(): bool
     }
 
     /**
-     * Get the value of remainedSeconds
-     */ 
-    public function getRemainedSeconds()
+     * Get the value of remainedSecondsPop
+     */
+    public function getRemainedSecondsPop()
     {
-        return $this->remainedSeconds;
+        return $this->remainedSecondsPop;
     }
 
     /**
-     * Set the value of remainedSeconds
+     * Set the value of remainedSecondsPop
      *
      * @return  self
-     */ 
-    public function setRemainedSeconds($remainedSeconds)
+     */
+    public function setRemainedSecondsPop($remainedSecondsPop)
     {
-        $this->remainedSeconds = $remainedSeconds;
+        $this->remainedSecondsPop = $remainedSecondsPop;
+
+        return $this;
+    }
+    /**
+     * Get the value of remainedSecondsGain
+     */
+    public function getRemainedSecondsGain()
+    {
+        return $this->remainedSecondsGain;
+    }
+
+    /**
+     * Set the value of remainedSecondsGain
+     *
+     * @return  self
+     */
+    public function setRemainedSecondsGain($remainedSecondsGain)
+    {
+        $this->remainedSecondsGain = $remainedSecondsGain;
 
         return $this;
     }
